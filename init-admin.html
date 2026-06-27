@@ -129,15 +129,7 @@
     return `${propre}@${DOMAINE_ETABLISSEMENT}`;
   }
 
-  const elSuffixe = document.getElementById("suffixe-domaine");
-  elSuffixe.textContent = "Adresse finale : identifiant@" + DOMAINE_ETABLISSEMENT;
-
-  document.getElementById("identifiant").addEventListener("input", (e) => {
-    const val = e.target.value.trim();
-    elSuffixe.textContent = val
-      ? "Adresse finale : " + fabriquerEmail(val)
-      : "Adresse finale : identifiant@" + DOMAINE_ETABLISSEMENT;
-  });
+  document.getElementById("suffixe-domaine").textContent = "Adresse finale : identifiant@" + DOMAINE_ETABLISSEMENT;
 
   const form = document.getElementById("formulaire-init");
   const elResultat = document.getElementById("resultat");
@@ -177,37 +169,10 @@
         </div>`;
       form.reset();
     } catch (erreur) {
-      console.error("Erreur Firebase :", erreur);
-      let texte, detail = "";
-      switch (erreur.code) {
-        case "auth/email-already-in-use":
-          texte = "Cet identifiant est déjà utilisé.";
-          detail = "Un compte existe déjà avec cette adresse. Connecte-toi directement sur index.html.";
-          break;
-        case "auth/weak-password":
-          texte = "Mot de passe trop faible (6 caractères minimum).";
-          break;
-        case "auth/invalid-email":
-          texte = "Adresse e-mail invalide.";
-          detail = "L\'identifiant contient peut-être des caractères incompatibles.";
-          break;
-        case "auth/configuration-not-found":
-        case "auth/operation-not-allowed":
-          texte = "Authentification par e-mail non activée dans Firebase.";
-          detail = "Firebase Console → Authentication → Sign-in method → active \'E-mail/Mot de passe\'.";
-          break;
-        case "auth/network-request-failed":
-          texte = "Erreur réseau. Vérifie ta connexion et réessaie.";
-          break;
-        case "permission-denied":
-          texte = "Permission Firestore refusée.";
-          detail = "Publie les règles du fichier regles-firestore.txt dans la console Firebase.";
-          break;
-        default:
-          texte = erreur.message || "Erreur inconnue.";
-          detail = "Code : " + (erreur.code || "non disponible");
-      }
-      elResultat.innerHTML = `<div class="resultat erreur">❌ <strong>${texte}</strong>${detail ? "<br><br>" + detail : ""}</div>`;
+      let texte = "Une erreur est survenue.";
+      if (erreur.code === "auth/email-already-in-use") texte = "Cet identifiant est déjà utilisé.";
+      if (erreur.code === "auth/weak-password") texte = "Le mot de passe est trop faible (6 caractères minimum).";
+      elResultat.innerHTML = `<div class="resultat erreur">❌ ${texte}</div>`;
     } finally {
       elBouton.disabled = false;
       elBouton.textContent = "Créer le compte admin";
