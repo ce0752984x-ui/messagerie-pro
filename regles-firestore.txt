@@ -64,9 +64,10 @@ service cloud.firestore {
         estAdmin()
       );
 
-      // Suppression : l'expéditeur (ses propres brouillons/envois) ou un admin.
+      // Suppression : l'expéditeur OU le destinataire (ses messages reçus/envoyés), ou un admin.
       allow delete: if estConnecte() && (
         resource.data.expediteurUid == request.auth.uid ||
+        resource.data.destinataireUid == request.auth.uid ||
         estAdmin()
       );
     }
