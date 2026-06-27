@@ -1413,10 +1413,6 @@ function attacherEvenementsMail() {
     }
   });
 
-  // Mobile : retour de la lecture vers la liste
-  document.getElementById("bouton-retour-liste-mobile").addEventListener("click", () => {
-    document.querySelector(".app-mail").classList.remove("affiche-lecture");
-  });
   // Mobile : ouverture du tiroir de menu (dossiers + déconnexion)
   document.getElementById("bouton-menu-mobile-mail").addEventListener("click", () => ouvrirMenuMobileMail());
 }
