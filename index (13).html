@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Messagerie — CLG Victor Duruy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   IDENTITÉ VISUELLE — MESSAGERIE CLG VICTOR DURUY
+   ============================================================ */
+:root {
+  --encre: #2b1410;
+  --bordeaux: #7a2e2e;
+  --bordeaux-vif: #9c3b3b;
+  --craie: #d4a843;
+  --craie-clair: #e9c976;
+  --papier: #f7f3ea;
+  --papier-fonce: #ece4d3;
+  --blanc: #fffdf8;
+  --gris-texte: #5c5249;
+  --gris-bordure: #ddd3c0;
+  --vert-succes: #3f7a4f;
+  --rouge-erreur: #a23b3b;
+  --police-titre: "Fraunces", Georgia, serif;
+  --police-corps: "Public Sans", "Segoe UI", sans-serif;
+  --police-utile: "JetBrains Mono", monospace;
+  --rayon: 10px;
+  --rayon-petit: 6px;
+  --ombre: 0 2px 10px rgba(43, 20, 16, 0.08);
+  --ombre-forte: 0 8px 30px rgba(43, 20, 16, 0.18);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--police-corps); background: var(--papier); color: var(--encre); -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--bordeaux); outline-offset: 2px; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--gris-bordure); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--craie); }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Écrans principaux : un seul visible à la fois */
+.ecran { display: none; }
+.ecran.actif { display: block; }
+
+/* ---------- Boutons ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5em; padding: 0.7em 1.4em; border-radius: var(--rayon-petit); border: 1.5px solid transparent; font-size: 0.95rem; font-weight: 600; transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease; }
+.btn:active { transform: translateY(1px); }
+.btn-principal { background: var(--bordeaux); color: var(--blanc); }
+.btn-principal:hover { background: var(--bordeaux-vif); box-shadow: var(--ombre); }
+.btn-secondaire { background: transparent; border-color: var(--gris-bordure); color: var(--encre); }
+.btn-secondaire:hover { border-color: var(--bordeaux); color: var(--bordeaux); }
+.btn-craie { background: var(--craie); color: var(--encre); }
+.btn-craie:hover { background: var(--craie-clair); }
+.btn-danger { background: transparent; border-color: var(--rouge-erreur); color: var(--rouge-erreur); }
+.btn-danger:hover { background: var(--rouge-erreur); color: var(--blanc); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+.btn-icone { background: transparent; border: none; padding: 0.4em; border-radius: 50%; display: inline-flex; color: var(--gris-texte); transition: background 0.12s ease, color 0.12s ease; }
+.btn-icone:hover { background: var(--papier-fonce); color: var(--bordeaux); }
+
+/* ---------- Champs ---------- */
+.champ { display: flex; flex-direction: column; gap: 0.4em; }
+.champ label { font-size: 0.82rem; font-weight: 600; color: var(--gris-texte); }
+.champ input, .champ select, .champ textarea { font-family: inherit; font-size: 0.95rem; padding: 0.65em 0.8em; border: 1.5px solid var(--gris-bordure); border-radius: var(--rayon-petit); background: var(--blanc); color: var(--encre); transition: border-color 0.12s ease; }
+.champ input:focus, .champ select:focus, .champ textarea:focus { border-color: var(--bordeaux); }
+.champ textarea { resize: vertical; min-height: 120px; }
+
+/* ---------- Badges ---------- */
+.badge { display: inline-flex; align-items: center; gap: 0.35em; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 0.25em 0.65em; border-radius: 100px; }
+.badge-admin { background: rgba(122,46,46,0.12); color: var(--bordeaux); }
+.badge-professeur { background: rgba(212,168,67,0.18); color: #8a6a1f; }
+.badge-eleve { background: rgba(63,122,79,0.12); color: var(--vert-succes); }
+.badge-desactive { background: rgba(162,59,59,0.1); color: var(--rouge-erreur); }
+
+/* ---------- Toasts ---------- */
+.toast-zone { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 999; }
+.toast { background: var(--encre); color: var(--blanc); padding: 0.8em 1.2em; border-radius: var(--rayon-petit); box-shadow: var(--ombre-forte); font-size: 0.9rem; display: flex; align-items: center; gap: 0.6em; animation: toast-in 0.2s ease; max-width: 320px; }
+.toast.succes { border-left: 4px solid var(--vert-succes); }
+.toast.erreur { border-left: 4px solid var(--rouge-erreur); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---------- Chargement / vide ---------- */
+.chargement-ligne { height: 14px; border-radius: 4px; background: linear-gradient(90deg, var(--papier-fonce) 25%, var(--gris-bordure) 50%, var(--papier-fonce) 75%); background-size: 200% 100%; animation: chargement 1.4s ease infinite; }
+@keyframes chargement { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.etat-vide { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6em; padding: 4em 2em; text-align: center; color: var(--gris-texte); }
+.etat-vide svg { width: 64px; height: 64px; opacity: 0.5; margin-bottom: 0.4em; }
+.etat-vide h3 { font-family: var(--police-titre); color: var(--encre); font-size: 1.2rem; }
+.etat-vide p { font-size: 0.9rem; max-width: 320px; }
+
+@media (max-width: 720px) { .masquer-mobile { display: none !important; } }
+
+/* ============================================================
+   ÉCRAN : CONNEXION
+   ============================================================ */
+.page-connexion { min-height: 100vh; display: grid; grid-template-columns: 1.1fr 1fr; }
+.volet-gauche { background: var(--encre); background-image: radial-gradient(circle at 15% 25%, rgba(212,168,67,0.08), transparent 40%), radial-gradient(circle at 85% 80%, rgba(122,46,46,0.25), transparent 45%); color: var(--blanc); display: flex; align-items: center; justify-content: center; padding: 4em 3em; position: relative; overflow: hidden; }
+.volet-contenu { max-width: 460px; position: relative; z-index: 1; }
+.sceau-grand { width: 88px; height: 88px; color: var(--craie); margin-bottom: 2.2em; }
+.volet-gauche h1 { font-family: var(--police-titre); font-size: 2.6rem; font-weight: 600; line-height: 1.15; margin-bottom: 0.9em; }
+.volet-gauche h1 em { font-style: italic; color: var(--craie-clair); }
+.volet-texte { font-size: 1.02rem; line-height: 1.6; color: rgba(255,253,248,0.78); margin-bottom: 1.6em; }
+.volet-mention { font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; color: rgba(212,168,67,0.85); border-top: 1px solid rgba(255,253,248,0.18); padding-top: 1.2em; }
+.volet-droit { background: var(--papier); display: flex; align-items: center; justify-content: center; padding: 2em; }
+.carte-connexion { width: 100%; max-width: 380px; }
+.carte-connexion h2 { font-family: var(--police-titre); font-size: 1.7rem; font-weight: 600; margin-bottom: 0.3em; }
+.sous-titre { color: var(--gris-texte); font-size: 0.92rem; margin-bottom: 2em; }
+#formulaire-connexion { display: flex; flex-direction: column; gap: 1.2em; }
+.champ-domaine { display: flex; align-items: stretch; border: 1.5px solid var(--gris-bordure); border-radius: var(--rayon-petit); overflow: hidden; background: var(--blanc); transition: border-color 0.12s ease; }
+.champ-domaine:focus-within { border-color: var(--bordeaux); }
+.champ-domaine input { border: none; flex: 1; min-width: 0; }
+.champ-domaine input:focus { outline: none; }
+.suffixe-domaine { display: flex; align-items: center; padding: 0 0.8em; background: var(--papier-fonce); color: var(--gris-texte); font-size: 0.85rem; white-space: nowrap; border-left: 1.5px solid var(--gris-bordure); }
+.champ-mdp { position: relative; display: flex; }
+.champ-mdp input { flex: 1; padding-right: 2.6em; }
+.bouton-oeil { position: absolute; right: 0.5em; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--gris-texte); padding: 0.3em; display: flex; }
+.bouton-oeil:hover { color: var(--bordeaux); }
+.message-erreur { background: rgba(162,59,59,0.08); color: var(--rouge-erreur); border-left: 3px solid var(--rouge-erreur); padding: 0.7em 0.9em; border-radius: var(--rayon-petit); font-size: 0.85rem; }
+.aide-bas { margin-top: 2em; font-size: 0.82rem; color: var(--gris-texte); text-align: center; }
+.spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: var(--blanc); border-radius: 50%; animation: tourner 0.6s linear infinite; }
+@keyframes tourner { to { transform: rotate(360deg); } }
+@media (max-width: 880px) { .page-connexion { grid-template-columns: 1fr; } .volet-gauche { display: none; } .volet-droit { padding: 1.5em; } }
+
+/* ============================================================
+   ÉCRAN : ADMINISTRATION
+   ============================================================ */
+.app-admin { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+.barre-laterale { background: var(--encre); color: var(--blanc); display: flex; flex-direction: column; padding: 1.6em 1.2em; }
+.logo-admin { display: flex; align-items: center; gap: 0.7em; padding: 0.6em 0.4em 1.6em; border-bottom: 1px solid rgba(255,253,248,0.12); margin-bottom: 1.2em; }
+.logo-admin div:last-child { display: flex; flex-direction: column; line-height: 1.3; }
+.logo-admin strong { font-family: var(--police-titre); font-size: 0.98rem; }
+.logo-admin span { font-size: 0.74rem; color: rgba(255,253,248,0.55); }
+.nav-admin { display: flex; flex-direction: column; gap: 0.2em; flex: 1; }
+.nav-item { display: flex; align-items: center; gap: 0.7em; background: none; border: none; color: rgba(255,253,248,0.75); font-size: 0.9rem; font-weight: 500; padding: 0.65em 0.8em; border-radius: var(--rayon-petit); text-align: left; width: 100%; transition: background 0.12s ease, color 0.12s ease; position: relative; }
+.nav-item:hover { background: rgba(255,253,248,0.07); color: var(--blanc); }
+.nav-item.actif { background: var(--bordeaux); color: var(--blanc); }
+.nav-item svg { flex-shrink: 0; }
+.nav-item.masquee { display: none; }
+.bas-barre-laterale { display: flex; flex-direction: column; gap: 0.2em; border-top: 1px solid rgba(255,253,248,0.12); padding-top: 1em; }
+.contenu-admin { padding: 2em 2.6em 3em; overflow-x: hidden; }
+.entete-admin { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2em; }
+.entete-admin h1 { font-family: var(--police-titre); font-size: 1.7rem; font-weight: 600; }
+.profil-coin { display: flex; align-items: center; gap: 0.7em; font-size: 0.88rem; color: var(--gris-texte); }
+.avatar-mini { width: 36px; height: 36px; border-radius: 50%; background: var(--bordeaux); color: var(--blanc); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; }
+.vue.masquee { display: none; }
+.grille-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1em; margin-bottom: 1.6em; }
+.carte-stat { background: var(--blanc); border: 1px solid var(--gris-bordure); border-radius: var(--rayon); padding: 1.3em 1.4em; display: flex; flex-direction: column; gap: 0.4em; }
+.carte-stat-label { font-size: 0.78rem; color: var(--gris-texte); font-weight: 600; }
+.carte-stat-valeur { font-family: var(--police-titre); font-size: 1.9rem; font-weight: 600; color: var(--bordeaux); }
+.carte-panneau { background: var(--blanc); border: 1px solid var(--gris-bordure); border-radius: var(--rayon); padding: 1.6em; margin-bottom: 1.4em; }
+.panneau-entete { display: flex; align-items: center; justify-content: space-between; gap: 1em; margin-bottom: 1.2em; flex-wrap: wrap; }
+.panneau-entete h2 { font-family: var(--police-titre); font-size: 1.15rem; font-weight: 600; }
+.liste-simple { display: flex; flex-direction: column; gap: 0.5em; }
+.ligne-compte-recent { display: flex; align-items: center; gap: 0.8em; padding: 0.6em 0.4em; border-radius: var(--rayon-petit); }
+.ligne-compte-recent:hover { background: var(--papier); }
+.barre-actions { display: flex; align-items: center; justify-content: space-between; gap: 1em; margin-bottom: 1.2em; flex-wrap: wrap; }
+.recherche-filtre { display: flex; gap: 0.6em; flex-wrap: wrap; flex: 1; }
+.champ-recherche { display: flex; align-items: center; gap: 0.5em; background: var(--blanc); border: 1.5px solid var(--gris-bordure); border-radius: var(--rayon-petit); padding: 0.55em 0.8em; min-width: 220px; color: var(--gris-texte); flex: 1; max-width: 360px; }
+.champ-recherche input { border: none; flex: 1; font-size: 0.9rem; }
+.champ-recherche input:focus { outline: none; }
+.recherche-filtre select { border: 1.5px solid var(--gris-bordure); border-radius: var(--rayon-petit); padding: 0.55em 0.8em; background: var(--blanc); font-size: 0.88rem; color: var(--encre); }
+.table-comptes { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.table-comptes th { text-align: left; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--gris-texte); padding: 0.6em 0.8em; border-bottom: 1.5px solid var(--gris-bordure); }
+.table-comptes td { padding: 0.8em; border-bottom: 1px solid var(--papier-fonce); vertical-align: middle; }
+.table-comptes tr:last-child td { border-bottom: none; }
+.cellule-compte { display: flex; align-items: center; gap: 0.7em; }
+.avatar-table { width: 34px; height: 34px; border-radius: 50%; background: var(--papier-fonce); color: var(--bordeaux); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; flex-shrink: 0; }
+.cellule-compte strong { display: block; font-size: 0.9rem; }
+.identifiant-mono { font-family: var(--police-utile); font-size: 0.82rem; color: var(--gris-texte); }
+.actions-ligne { display: flex; gap: 0.3em; justify-content: flex-end; }
+.formulaire-vertical { display: flex; flex-direction: column; gap: 1.1em; }
+.ligne-deux-champs { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; }
+.texte-aide { font-size: 0.78rem; color: var(--gris-texte); margin-top: 0.2em; }
+.fond-modale { position: fixed; inset: 0; background: rgba(43,20,16,0.45); display: flex; align-items: center; justify-content: center; z-index: 500; padding: 1.5em; backdrop-filter: blur(2px); }
+.fond-modale.masquee { display: none; }
+.modale { background: var(--blanc); border-radius: var(--rayon); padding: 1.8em; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: var(--ombre-forte); }
+.modale-petite { max-width: 400px; }
+.modale-entete { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2em; }
+.modale-entete h2 { font-family: var(--police-titre); font-size: 1.25rem; font-weight: 600; }
+.actions-modale { display: flex; justify-content: flex-end; gap: 0.7em; margin-top: 0.4em; }
+@media (max-width: 980px) { .grille-stats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 760px) { .app-admin { grid-template-columns: 1fr; } .barre-laterale { flex-direction: row; overflow-x: auto; padding: 1em; } .logo-admin, .bas-barre-laterale { display: none; } .nav-admin { flex-direction: row; } .contenu-admin { padding: 1.4em; } .ligne-deux-champs { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   ÉCRAN : MESSAGERIE
+   ============================================================ */
+.app-mail { display: grid; grid-template-columns: 250px 360px 1fr; height: 100vh; overflow: hidden; }
+.barre-laterale-mail { background: var(--encre); color: var(--blanc); display: flex; flex-direction: column; padding: 1.6em 1.2em; }
+.compteur-non-lus { margin-left: auto; background: var(--craie); color: var(--encre); font-size: 0.72rem; font-weight: 700; padding: 0.1em 0.55em; border-radius: 100px; }
+.liste-messages { border-right: 1px solid var(--gris-bordure); display: flex; flex-direction: column; background: var(--blanc); overflow: hidden; }
+.entete-liste { padding: 1.4em 1.2em 1em; border-bottom: 1px solid var(--papier-fonce); display: flex; flex-direction: column; gap: 0.8em; }
+.entete-liste h1 { font-family: var(--police-titre); font-size: 1.25rem; font-weight: 600; }
+.conteneur-liste-messages { flex: 1; overflow-y: auto; }
+.item-message { padding: 1em 1.2em; border-bottom: 1px solid var(--papier-fonce); cursor: pointer; transition: background 0.1s ease; display: flex; flex-direction: column; gap: 0.3em; }
+.item-message:hover { background: var(--papier); }
+.item-message.selectionne { background: var(--papier-fonce); }
+.item-message.non-lu .ligne-haut-item strong, .item-message.non-lu .objet-item { font-weight: 700; }
+.ligne-haut-item { display: flex; align-items: baseline; justify-content: space-between; gap: 0.6em; }
+.ligne-haut-item strong { font-size: 0.9rem; }
+.date-item { font-size: 0.76rem; color: var(--gris-texte); white-space: nowrap; }
+.objet-item { font-size: 0.87rem; color: var(--encre); }
+.apercu-item { font-size: 0.82rem; color: var(--gris-texte); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.point-non-lu { width: 7px; height: 7px; border-radius: 50%; background: var(--bordeaux); display: inline-block; margin-right: 6px; }
+.lecture-message { background: var(--papier); overflow-y: auto; display: flex; flex-direction: column; }
+.lecture-message .etat-vide { color: var(--gris-texte); }
+.entete-lecture { padding: 2em 2.4em 1.4em; border-bottom: 1px solid var(--gris-bordure); background: var(--blanc); }
+.entete-lecture h2 { font-family: var(--police-titre); font-size: 1.5rem; font-weight: 600; margin-bottom: 0.7em; }
+.meta-lecture { display: flex; align-items: center; gap: 0.9em; }
+.avatar-lecture { width: 42px; height: 42px; border-radius: 50%; background: var(--bordeaux); color: var(--blanc); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+.meta-lecture-texte { font-size: 0.86rem; line-height: 1.45; }
+.meta-lecture-texte .nom-expediteur { font-weight: 700; }
+.meta-lecture-texte .info-secondaire { color: var(--gris-texte); }
+.corps-lecture { padding: 2em 2.4em; font-size: 0.97rem; line-height: 1.7; white-space: pre-wrap; flex: 1; }
+.actions-lecture { padding: 1em 2.4em 2em; display: flex; gap: 0.8em; }
+.panneau-composition { background: var(--blanc); border-radius: var(--rayon); width: 100%; max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; padding: 1.8em; box-shadow: var(--ombre-forte); }
+.panneau-composition #formulaire-composition { flex: 1; min-height: 0; }
+.champ-destinataire { position: relative; }
+.suggestions-destinataire { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--blanc); border: 1.5px solid var(--gris-bordure); border-radius: var(--rayon-petit); box-shadow: var(--ombre-forte); max-height: 240px; overflow-y: auto; z-index: 10; }
+.suggestion-item { display: flex; align-items: center; gap: 0.7em; padding: 0.7em 0.9em; cursor: pointer; }
+.suggestion-item:hover { background: var(--papier); }
+.suggestion-item .avatar-table { flex-shrink: 0; }
+.suggestion-item-texte { display: flex; flex-direction: column; line-height: 1.35; }
+.suggestion-item-texte strong { font-size: 0.88rem; }
+.suggestion-item-texte span { font-size: 0.76rem; color: var(--gris-texte); }
+.suggestions-vide { padding: 0.9em; font-size: 0.85rem; color: var(--gris-texte); text-align: center; }
+.destinataire-choisi { display: flex; align-items: center; gap: 0.6em; background: var(--papier); border: 1px solid var(--gris-bordure); border-radius: var(--rayon-petit); padding: 0.5em 0.7em; margin-top: 0.5em; width: fit-content; }
+.destinataire-choisi button { background: none; border: none; color: var(--gris-texte); display: flex; padding: 0.1em; }
+.destinataire-choisi button:hover { color: var(--rouge-erreur); }
+@media (max-width: 980px) { .app-mail { grid-template-columns: 80px 1fr; } .barre-laterale-mail .logo-admin span, .barre-laterale-mail .logo-admin strong, .barre-laterale-mail #bouton-nouveau-message, .app-mail .bas-barre-laterale { display: none; } .lecture-message { display: none; } }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     ÉCRAN 1 : CONNEXION
+     ============================================================ -->
+<div class="ecran actif" id="ecran-connexion">
+  <div class="page-connexion">
+    <div class="volet-gauche">
+      <div class="volet-contenu">
+        <div class="sceau-grand">
+          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="60" cy="60" r="56" stroke="currentColor" stroke-width="2" stroke-dasharray="2 4"/>
+            <circle cx="60" cy="60" r="46" stroke="currentColor" stroke-width="1.5"/>
+            <text x="60" y="48" text-anchor="middle" font-family="Fraunces, serif" font-size="11" fill="currentColor" letter-spacing="2">COLLÈGE</text>
+            <text x="60" y="68" text-anchor="middle" font-family="Fraunces, serif" font-size="13" font-weight="600" fill="currentColor">VICTOR DURUY</text>
+            <text x="60" y="84" text-anchor="middle" font-family="Public Sans, sans-serif" font-size="8" fill="currentColor" letter-spacing="3">MESSAGERIE</text>
+          </svg>
+        </div>
+        <h1>Le courrier<br>du collège,<br><em>en un clic.</em></h1>
+        <p class="volet-texte">Boîte de réception, brouillons et envois — un espace de messagerie réservé aux élèves, professeurs et personnels du collège Victor Duruy.</p>
+        <p class="volet-mention">Accès réservé · comptes créés par l'administration</p>
+      </div>
+    </div>
+    <div class="volet-droit">
+      <div class="carte-connexion">
+        <h2>Connexion</h2>
+        <p class="sous-titre">Identifiez-vous avec le compte fourni par votre établissement.</p>
+        <form id="formulaire-connexion" novalidate>
+          <div class="champ">
+            <label for="identifiant">Identifiant</label>
+            <div class="champ-domaine">
+              <input type="text" id="identifiant" placeholder="jdupont" autocomplete="username" required />
+              <span id="suffixe-domaine" class="suffixe-domaine"></span>
+            </div>
+          </div>
+          <div class="champ">
+            <label for="mot-de-passe">Mot de passe</label>
+            <div class="champ-mdp">
+              <input type="password" id="mot-de-passe" placeholder="••••••••" autocomplete="current-password" required />
+              <button type="button" id="bouton-oeil" class="bouton-oeil" aria-label="Afficher le mot de passe">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div id="message-erreur-connexion" class="message-erreur" hidden></div>
+          <button type="submit" class="btn btn-principal" id="bouton-connexion" style="width:100%; margin-top: 0.5em;">
+            <span id="texte-bouton-connexion">Se connecter</span>
+          </button>
+        </form>
+        <p class="aide-bas">Un souci de connexion ? Contactez le secrétariat ou votre administrateur·rice.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     ÉCRAN 2 : ADMINISTRATION
+     ============================================================ -->
+<div class="ecran" id="ecran-admin">
+  <div class="app-admin">
+    <aside class="barre-laterale">
+      <div class="logo-admin">
+        <div class="cachet" style="width:34px;height:34px;color:var(--craie);">
+          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="56" stroke="currentColor" stroke-width="3" stroke-dasharray="2 5"/><circle cx="60" cy="60" r="46" stroke="currentColor" stroke-width="2"/></svg>
+        </div>
+        <div><strong>Administration</strong><span>CLG Victor Duruy</span></div>
+      </div>
+      <nav class="nav-admin">
+        <button class="nav-item actif" data-vue="tableau-de-bord">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+          Tableau de bord
+        </button>
+        <button class="nav-item" data-vue="comptes">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Comptes
+        </button>
+        <button class="nav-item" data-vue="messages">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+          Messages
+        </button>
+        <button class="nav-item" data-vue="parametres">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Paramètres
+        </button>
+      </nav>
+      <div class="bas-barre-laterale">
+        <button class="nav-item" id="bouton-aller-mail-depuis-admin">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"/></svg>
+          Aller à ma messagerie
+        </button>
+        <button class="nav-item" id="bouton-deconnexion-admin">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Se déconnecter
+        </button>
+      </div>
+    </aside>
+
+    <main class="contenu-admin">
+      <header class="entete-admin">
+        <h1 id="titre-vue">Tableau de bord</h1>
+        <div class="profil-coin">
+          <span id="nom-admin-connecte">—</span>
+          <div class="avatar-mini" id="avatar-admin">—</div>
+        </div>
+      </header>
+
+      <section class="vue" id="vue-tableau-de-bord">
+        <div class="grille-stats">
+          <div class="carte-stat"><span class="carte-stat-label">Comptes actifs</span><span class="carte-stat-valeur" id="stat-comptes-actifs">—</span></div>
+          <div class="carte-stat"><span class="carte-stat-label">Élèves</span><span class="carte-stat-valeur" id="stat-eleves">—</span></div>
+          <div class="carte-stat"><span class="carte-stat-label">Professeurs &amp; personnel</span><span class="carte-stat-valeur" id="stat-professeurs">—</span></div>
+          <div class="carte-stat"><span class="carte-stat-label">Messages envoyés (total)</span><span class="carte-stat-valeur" id="stat-messages">—</span></div>
+        </div>
+        <div class="carte-panneau">
+          <div class="panneau-entete">
+            <h2>Comptes créés récemment</h2>
+            <button class="btn btn-secondaire" data-vue-lien="comptes">Voir tous les comptes</button>
+          </div>
+          <div id="liste-comptes-recents" class="liste-simple">
+            <div class="chargement-ligne" style="height:42px;margin-bottom:8px;"></div>
+            <div class="chargement-ligne" style="height:42px;margin-bottom:8px;"></div>
+            <div class="chargement-ligne" style="height:42px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="vue masquee" id="vue-comptes">
+        <div class="barre-actions">
+          <div class="recherche-filtre">
+            <div class="champ-recherche">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="recherche-comptes" placeholder="Rechercher un nom, identifiant, classe..." />
+            </div>
+            <select id="filtre-role">
+              <option value="">Tous les rôles</option>
+              <option value="eleve">Élèves</option>
+              <option value="professeur">Professeurs</option>
+              <option value="admin">Administrateurs</option>
+            </select>
+            <select id="filtre-statut">
+              <option value="">Tous les statuts</option>
+              <option value="actif">Actifs</option>
+              <option value="désactivé">Désactivés</option>
+            </select>
+          </div>
+          <button class="btn btn-principal" id="bouton-nouveau-compte">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nouveau compte
+          </button>
+        </div>
+        <div class="carte-panneau">
+          <table class="table-comptes">
+            <thead><tr><th>Compte</th><th>Identifiant</th><th>Rôle</th><th class="masquer-mobile">Classe / Fonction</th><th>Statut</th><th></th></tr></thead>
+            <tbody id="corps-table-comptes"></tbody>
+          </table>
+          <div id="etat-vide-comptes" class="etat-vide" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <h3>Aucun compte trouvé</h3>
+            <p>Essaie de modifier ta recherche ou crée un nouveau compte.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="vue masquee" id="vue-messages">
+        <div class="carte-panneau">
+          <div class="panneau-entete">
+            <h2>Tous les messages échangés</h2>
+            <div class="recherche-filtre">
+              <div class="champ-recherche">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="recherche-messages" placeholder="Rechercher par objet, expéditeur..." />
+              </div>
+            </div>
+          </div>
+          <table class="table-comptes">
+            <thead><tr><th>De</th><th>À</th><th>Objet</th><th class="masquer-mobile">Date</th><th></th></tr></thead>
+            <tbody id="corps-table-messages"></tbody>
+          </table>
+          <div id="etat-vide-messages" class="etat-vide" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+            <h3>Aucun message pour l'instant</h3>
+            <p>Les messages échangés sur la plateforme apparaîtront ici.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="vue masquee" id="vue-parametres">
+        <div class="carte-panneau" style="max-width:520px;">
+          <div class="panneau-entete"><h2>Mon compte administrateur</h2></div>
+          <form id="formulaire-mdp-admin" class="formulaire-vertical">
+            <div class="champ"><label for="mdp-actuel">Mot de passe actuel</label><input type="password" id="mdp-actuel" autocomplete="current-password" required /></div>
+            <div class="champ"><label for="mdp-nouveau">Nouveau mot de passe</label><input type="password" id="mdp-nouveau" autocomplete="new-password" minlength="6" required /></div>
+            <div id="message-mdp" class="message-erreur" hidden></div>
+            <button type="submit" class="btn btn-principal" style="align-self:flex-start;">Mettre à jour le mot de passe</button>
+          </form>
+        </div>
+        <div class="carte-panneau" style="max-width:520px;">
+          <div class="panneau-entete"><h2>Domaine de l'établissement</h2></div>
+          <p style="color:var(--gris-texte); font-size:0.9rem; line-height:1.6;">
+            Toutes les adresses de comptes utilisent le domaine <code id="affichage-domaine" style="background:var(--papier-fonce);padding:0.2em 0.5em;border-radius:4px;"></code>.
+            Pour le modifier, édite la constante <code style="background:var(--papier-fonce);padding:0.2em 0.5em;border-radius:4px;">DOMAINE_ETABLISSEMENT</code> en haut du script, dans ce même fichier.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================
+     ÉCRAN 3 : MESSAGERIE
+     ============================================================ -->
+<div class="ecran" id="ecran-mail">
+  <div class="app-mail">
+    <aside class="barre-laterale-mail">
+      <div class="logo-admin">
+        <div class="cachet" style="width:34px;height:34px;color:var(--craie);">
+          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="56" stroke="currentColor" stroke-width="3" stroke-dasharray="2 5"/><circle cx="60" cy="60" r="46" stroke="currentColor" stroke-width="2"/></svg>
+        </div>
+        <div><strong>Messagerie</strong><span>CLG Victor Duruy</span></div>
+      </div>
+      <button class="btn btn-craie" id="bouton-nouveau-message" style="margin: 1.2em 0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nouveau message
+      </button>
+      <nav class="nav-admin">
+        <button class="nav-item actif" data-dossier="reception">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+          Boîte de réception
+          <span class="compteur-non-lus" id="compteur-non-lus" hidden>0</span>
+        </button>
+        <button class="nav-item" data-dossier="envoyes">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Envoyés
+        </button>
+        <button class="nav-item" data-dossier="brouillons">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Brouillons
+        </button>
+      </nav>
+      <div class="bas-barre-laterale">
+        <button class="nav-item masquee" id="bouton-aller-admin-depuis-mail">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Espace administration
+        </button>
+        <button class="nav-item" id="bouton-deconnexion-mail">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Se déconnecter
+        </button>
+      </div>
+    </aside>
+
+    <section class="liste-messages">
+      <header class="entete-liste">
+        <h1 id="titre-dossier">Boîte de réception</h1>
+        <div class="champ-recherche" style="max-width:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="recherche-mail" placeholder="Rechercher..." />
+        </div>
+      </header>
+      <div id="conteneur-liste-messages" class="conteneur-liste-messages">
+        <div class="chargement-ligne" style="height:64px;margin:10px;"></div>
+        <div class="chargement-ligne" style="height:64px;margin:10px;"></div>
+        <div class="chargement-ligne" style="height:64px;margin:10px;"></div>
+      </div>
+    </section>
+
+    <section class="lecture-message" id="zone-lecture">
+      <div class="etat-vide" style="height:100%;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+        <h3>Sélectionne un message</h3>
+        <p>Choisis un message dans la liste pour l'afficher ici.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODALES (partagées)
+     ============================================================ -->
+<div class="fond-modale masquee" id="fond-modale-compte">
+  <div class="modale">
+    <div class="modale-entete">
+      <h2 id="titre-modale-compte">Nouveau compte</h2>
+      <button class="btn-icone" id="fermer-modale-compte"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <form id="formulaire-compte" class="formulaire-vertical">
+      <input type="hidden" id="compte-uid-edition" value="" />
+      <div class="champ"><label for="compte-nom">Nom complet</label><input type="text" id="compte-nom" placeholder="Jean Dupont" required /></div>
+      <div class="ligne-deux-champs">
+        <div class="champ">
+          <label for="compte-identifiant">Identifiant</label>
+          <div class="champ-domaine"><input type="text" id="compte-identifiant" placeholder="jdupont" required /><span id="suffixe-domaine-modale" class="suffixe-domaine"></span></div>
+        </div>
+        <div class="champ">
+          <label for="compte-role">Rôle</label>
+          <select id="compte-role" required>
+            <option value="eleve">Élève</option>
+            <option value="professeur">Professeur / Personnel</option>
+            <option value="admin">Administrateur</option>
+          </select>
+        </div>
+      </div>
+      <div class="champ"><label for="compte-classe">Classe (élève) ou fonction (professeur/personnel)</label><input type="text" id="compte-classe" placeholder="ex : 4ᵉB ou Professeur de mathématiques" /></div>
+      <div class="champ" id="champ-mdp-creation">
+        <label for="compte-mdp">Mot de passe initial</label>
+        <div class="champ-mdp">
+          <input type="text" id="compte-mdp" placeholder="Au moins 6 caractères" minlength="6" />
+          <button type="button" class="bouton-oeil" id="bouton-generer-mdp" title="Générer un mot de passe"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.778-7.778zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></button>
+        </div>
+        <p class="texte-aide">Communique-le à la personne concernée. Elle pourra le modifier une fois connectée.</p>
+      </div>
+      <div id="message-erreur-compte" class="message-erreur" hidden></div>
+      <div class="actions-modale">
+        <button type="button" class="btn btn-secondaire" id="annuler-modale-compte">Annuler</button>
+        <button type="submit" class="btn btn-principal" id="bouton-enregistrer-compte">Créer le compte</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="fond-modale masquee" id="fond-modale-confirmation">
+  <div class="modale modale-petite">
+    <div class="modale-entete"><h2 id="titre-modale-confirmation">Confirmer l'action</h2></div>
+    <p id="texte-modale-confirmation" style="color:var(--gris-texte); margin-bottom:1.5em; line-height:1.5;"></p>
+    <div class="actions-modale">
+      <button type="button" class="btn btn-secondaire" id="annuler-modale-confirmation">Annuler</button>
+      <button type="button" class="btn btn-danger" id="confirmer-modale-confirmation">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<div class="fond-modale masquee" id="fond-modale-message-admin">
+  <div class="modale">
+    <div class="modale-entete">
+      <h2>Détail du message</h2>
+      <button class="btn-icone" id="fermer-modale-message-admin"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div id="contenu-modale-message-admin"></div>
+  </div>
+</div>
+
+<div class="fond-modale masquee" id="fond-composition">
+  <div class="panneau-composition">
+    <div class="modale-entete">
+      <h2 id="titre-composition">Nouveau message</h2>
+      <button class="btn-icone" id="fermer-composition"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <form id="formulaire-composition" class="formulaire-vertical">
+      <input type="hidden" id="brouillon-id-edition" value="" />
+      <div class="champ champ-destinataire">
+        <label for="champ-destinataire-saisie">Destinataire</label>
+        <input type="text" id="champ-destinataire-saisie" placeholder="Tape un nom, une classe ou une fonction..." autocomplete="off" />
+        <input type="hidden" id="destinataire-uid" />
+        <div id="suggestions-destinataire" class="suggestions-destinataire" hidden></div>
+        <div id="destinataire-choisi" class="destinataire-choisi" hidden></div>
+      </div>
+      <div class="champ"><label for="champ-objet">Objet</label><input type="text" id="champ-objet" placeholder="Objet du message" /></div>
+      <div class="champ" style="flex:1;"><label for="champ-contenu">Message</label><textarea id="champ-contenu" placeholder="Écris ton message ici..." style="min-height:240px; flex:1;"></textarea></div>
+      <div id="message-erreur-composition" class="message-erreur" hidden></div>
+      <div class="actions-modale" style="justify-content:space-between;">
+        <button type="button" class="btn btn-secondaire" id="bouton-enregistrer-brouillon">Enregistrer le brouillon</button>
+        <button type="submit" class="btn btn-principal" id="bouton-envoyer-message">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Envoyer
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast-zone" id="toast-zone"></div>
+
+<script type="module">
+// ============================================================
+// CONFIGURATION FIREBASE — CLG VICTOR DURUY
+// ============================================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut,
+  onAuthStateChanged, updatePassword, EmailAuthProvider, reauthenticateWithCredential
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
+  query, where, orderBy, onSnapshot, serverTimestamp, limit
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBH7brAhLPlyTmgKXPjFBvyo-cfla_pPW4",
+  authDomain: "messagerie-administrative-clg.firebaseapp.com",
+  projectId: "messagerie-administrative-clg",
+  storageBucket: "messagerie-administrative-clg.firebasestorage.app",
+  messagingSenderId: "685444050276",
+  appId: "1:685444050276:web:687dd9ebcd1ce44c365e71"
+};
+
+// Nom de domaine interne utilisé pour générer les adresses des comptes.
+// Change-le ici si besoin : tous les comptes utiliseront ce domaine.
+const DOMAINE_ETABLISSEMENT = "clg-victorduruy.fr";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Seconde instance Firebase totalement isolée, utilisée UNIQUEMENT pour créer
+// de nouveaux comptes depuis l'espace admin. Comme createUserWithEmailAndPassword
+// connecte automatiquement le compte créé dans l'instance utilisée, on passe par
+// cette appli secondaire pour ne jamais perturber la session de l'admin connecté.
+const appSecondaire = initializeApp(firebaseConfig, "creation-comptes");
+const authSecondaire = getAuth(appSecondaire);
+
+// ---------- Fonctions utilitaires partagées ----------
+function fabriquerEmail(identifiant) {
+  const propre = identifiant.trim().toLowerCase().normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9._-]/g, "");
+  return `${propre}@${DOMAINE_ETABLISSEMENT}`;
+}
+
+async function recupererProfil(uid) {
+  const snap = await getDoc(doc(db, "utilisateurs", uid));
+  if (!snap.exists()) return null;
+  return { id: snap.id, ...snap.data() };
+}
+
+function formaterDate(timestamp) {
+  if (!timestamp) return "";
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  const aujourdHui = new Date();
+  const memeJour = date.getDate() === aujourdHui.getDate() && date.getMonth() === aujourdHui.getMonth() && date.getFullYear() === aujourdHui.getFullYear();
+  if (memeJour) return date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+function echapperHTML(texte) {
+  const div = document.createElement("div");
+  div.textContent = texte ?? "";
+  return div.innerHTML;
+}
+
+function initiales(nomComplet) {
+  if (!nomComplet) return "?";
+  const parts = nomComplet.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function afficherToast(texte, type = "succes") {
+  const zone = document.getElementById("toast-zone");
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = texte;
+  zone.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+// ============================================================
+// NAVIGATION ENTRE LES 3 ÉCRANS
+// ============================================================
+function afficherEcran(nom) {
+  document.querySelectorAll(".ecran").forEach((e) => e.classList.remove("actif"));
+  document.getElementById("ecran-" + nom).classList.add("actif");
+}
+
+// ============================================================
+// ÉTAT GLOBAL
+// ============================================================
+let UTILISATEUR_COURANT = null;
+let PROFIL_COURANT = null;
+let TOUS_LES_COMPTES = [];
+let TOUS_LES_MESSAGES_ADMIN = [];
+let DOSSIER_ACTUEL = "reception";
+let MESSAGES_DOSSIER_ACTUEL = [];
+let MESSAGE_SELECTIONNE_ID = null;
+let DESINSCRIRE_ECOUTE = null;
+
+document.getElementById("suffixe-domaine").textContent = "@" + DOMAINE_ETABLISSEMENT;
+
+// ============================================================
+// ÉCOUTE GLOBALE DE L'AUTHENTIFICATION
+// ============================================================
+// Dès qu'on est connecté, on route automatiquement vers l'écran admin ou mail.
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    afficherEcran("connexion");
+    return;
+  }
+  const profil = await recupererProfil(user.uid);
+  if (!profil) {
+    await signOut(auth);
+    afficherEcran("connexion");
+    return;
+  }
+  if (profil.statut === "désactivé") {
+    await signOut(auth);
+    afficherErreurConnexion("Ce compte a été désactivé. Contacte l'administration.");
+    afficherEcran("connexion");
+    return;
+  }
+
+  UTILISATEUR_COURANT = user;
+  PROFIL_COURANT = profil;
+
+  if (profil.role === "admin") {
+    document.getElementById("bouton-aller-admin-depuis-mail").classList.remove("masquee");
+    await initialiserAdmin();
+    afficherEcran("admin");
+  } else {
+    await initialiserMail();
+    afficherEcran("mail");
+  }
+});
+
+// ============================================================
+// ÉCRAN CONNEXION
+// ============================================================
+const elFormulaireConnexion = document.getElementById("formulaire-connexion");
+const elIdentifiant = document.getElementById("identifiant");
+const elMotDePasse = document.getElementById("mot-de-passe");
+const elMessageErreurConnexion = document.getElementById("message-erreur-connexion");
+const elBoutonConnexion = document.getElementById("bouton-connexion");
+const elTexteBoutonConnexion = document.getElementById("texte-bouton-connexion");
+
+document.getElementById("bouton-oeil").addEventListener("click", () => {
+  elMotDePasse.type = elMotDePasse.type === "text" ? "password" : "text";
+});
+
+elFormulaireConnexion.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  masquerErreurConnexion();
+  const idSaisi = elIdentifiant.value.trim();
+  const mdp = elMotDePasse.value;
+  if (!idSaisi || !mdp) {
+    afficherErreurConnexion("Merci de renseigner ton identifiant et ton mot de passe.");
+    return;
+  }
+  const email = idSaisi.includes("@") ? idSaisi : fabriquerEmail(idSaisi);
+  basculerChargementConnexion(true);
+  try {
+    await signInWithEmailAndPassword(auth, email, mdp);
+    // onAuthStateChanged prendra le relais pour router vers le bon écran.
+  } catch (erreur) {
+    basculerChargementConnexion(false);
+    afficherErreurConnexion(traduireErreurConnexion(erreur.code));
+  }
+});
+
+function afficherErreurConnexion(texte) { elMessageErreurConnexion.textContent = texte; elMessageErreurConnexion.hidden = false; }
+function masquerErreurConnexion() { elMessageErreurConnexion.hidden = true; }
+function basculerChargementConnexion(enCours) {
+  elBoutonConnexion.disabled = enCours;
+  elTexteBoutonConnexion.innerHTML = enCours ? '<span class="spinner"></span> Connexion...' : "Se connecter";
+}
+function traduireErreurConnexion(code) {
+  switch (code) {
+    case "auth/invalid-email": return "L'identifiant saisi n'est pas valide.";
+    case "auth/user-not-found":
+    case "auth/invalid-credential":
+    case "auth/wrong-password": return "Identifiant ou mot de passe incorrect.";
+    case "auth/too-many-requests": return "Trop de tentatives. Réessaie dans quelques minutes.";
+    case "auth/network-request-failed": return "Problème de connexion réseau.";
+    default: return "Une erreur est survenue. Réessaie ou contacte l'administration.";
+  }
+}
+
+// Affiche un toast laissé en attente (ex: après création d'un compte par un admin)
+{
+  const messageEnAttente = sessionStorage.getItem("toast-apres-connexion");
+  if (messageEnAttente) {
+    sessionStorage.removeItem("toast-apres-connexion");
+    setTimeout(() => afficherToast(messageEnAttente, "succes"), 300);
+  }
+}
+
+async function deconnecterUtilisateur() {
+  // On coupe l'écoute Firestore en cours (boîte de réception/envoyés/brouillons)
+  // avant de se déconnecter, sinon elle continue de tourner sans les droits
+  // nécessaires et génère des erreurs de permission en boucle dans la console.
+  if (DESINSCRIRE_ECOUTE) {
+    DESINSCRIRE_ECOUTE();
+    DESINSCRIRE_ECOUTE = null;
+  }
+  // Réinitialiser les flags d'initialisation pour que les listeners soient
+  // correctement réattachés si un autre compte se connecte ensuite.
+  ADMIN_INITIALISE = false;
+  MAIL_INITIALISE = false;
+  UTILISATEUR_COURANT = null;
+  PROFIL_COURANT = null;
+  TOUS_LES_COMPTES = [];
+  TOUS_LES_MESSAGES_ADMIN = [];
+  await signOut(auth);
+}
+document.getElementById("bouton-deconnexion-admin").addEventListener("click", deconnecterUtilisateur);
+document.getElementById("bouton-deconnexion-mail").addEventListener("click", deconnecterUtilisateur);
+document.getElementById("bouton-aller-mail-depuis-admin").addEventListener("click", async () => {
+  await initialiserMail();
+  afficherEcran("mail");
+});
+document.getElementById("bouton-aller-admin-depuis-mail").addEventListener("click", async () => {
+  // On coupe l'écoute Firestore de la messagerie tant qu'on est sur l'écran admin.
+  if (DESINSCRIRE_ECOUTE) { DESINSCRIRE_ECOUTE(); DESINSCRIRE_ECOUTE = null; }
+  // Forcer le rechargement des données admin (liste des comptes potentiellement mise à jour)
+  ADMIN_INITIALISE = false;
+  await initialiserAdmin();
+  afficherEcran("admin");
+});
+
+// ============================================================
+// ÉCRAN ADMINISTRATION
+// ============================================================
+const TITRES_VUES_ADMIN = {
+  "tableau-de-bord": "Tableau de bord",
+  comptes: "Gestion des comptes",
+  messages: "Supervision des messages",
+  parametres: "Paramètres",
+};
+let ADMIN_INITIALISE = false;
+
+async function initialiserAdmin() {
+  document.getElementById("nom-admin-connecte").textContent = PROFIL_COURANT.nom;
+  document.getElementById("avatar-admin").textContent = initiales(PROFIL_COURANT.nom);
+  document.getElementById("affichage-domaine").textContent = "@" + DOMAINE_ETABLISSEMENT;
+  document.getElementById("suffixe-domaine-modale").textContent = "@" + DOMAINE_ETABLISSEMENT;
+  await chargerToutAdmin();
+  if (!ADMIN_INITIALISE) {
+    attacherEvenementsAdmin();
+    ADMIN_INITIALISE = true;
+  }
+}
+
+function attacherEvenementsAdmin() {
+  document.querySelectorAll(".nav-item[data-vue]").forEach((bouton) => {
+    bouton.addEventListener("click", () => allerVersVueAdmin(bouton.dataset.vue));
+  });
+  document.querySelectorAll("[data-vue-lien]").forEach((bouton) => {
+    bouton.addEventListener("click", () => allerVersVueAdmin(bouton.dataset.vueLien));
+  });
+
+  document.getElementById("recherche-comptes").addEventListener("input", afficherTableComptes);
+  document.getElementById("filtre-role").addEventListener("change", afficherTableComptes);
+  document.getElementById("filtre-statut").addEventListener("change", afficherTableComptes);
+  document.getElementById("corps-table-comptes").addEventListener("click", clicTableComptes);
+
+  document.getElementById("bouton-nouveau-compte").addEventListener("click", () => ouvrirModaleCompte(null));
+  document.getElementById("fermer-modale-compte").addEventListener("click", fermerModaleCompte);
+  document.getElementById("annuler-modale-compte").addEventListener("click", fermerModaleCompte);
+  document.getElementById("bouton-generer-mdp").addEventListener("click", () => { document.getElementById("compte-mdp").value = genererMotDePasse(); });
+  document.getElementById("formulaire-compte").addEventListener("submit", soumettreFormulaireCompte);
+
+  document.getElementById("annuler-modale-confirmation").addEventListener("click", () => {
+    document.getElementById("fond-modale-confirmation").classList.add("masquee");
+  });
+  document.getElementById("confirmer-modale-confirmation").addEventListener("click", confirmerActionAdmin);
+
+  document.getElementById("recherche-messages").addEventListener("input", afficherTableMessagesAdmin);
+  document.getElementById("corps-table-messages").addEventListener("click", clicTableMessagesAdmin);
+  document.getElementById("fermer-modale-message-admin").addEventListener("click", () => {
+    document.getElementById("fond-modale-message-admin").classList.add("masquee");
+  });
+
+  document.getElementById("formulaire-mdp-admin").addEventListener("submit", soumettreChangementMdpAdmin);
+}
+
+function allerVersVueAdmin(nomVue) {
+  document.querySelectorAll("#ecran-admin .vue").forEach((v) => v.classList.add("masquee"));
+  document.getElementById("vue-" + nomVue).classList.remove("masquee");
+  document.querySelectorAll(".nav-item[data-vue]").forEach((b) => b.classList.remove("actif"));
+  const boutonNav = document.querySelector(`.nav-item[data-vue="${nomVue}"]`);
+  if (boutonNav) boutonNav.classList.add("actif");
+  document.getElementById("titre-vue").textContent = TITRES_VUES_ADMIN[nomVue];
+}
+
+async function chargerToutAdmin() {
+  await Promise.all([chargerComptes(), chargerMessagesAdmin()]);
+  calculerStatsAdmin();
+  afficherComptesRecents();
+  afficherTableComptes();
+  afficherTableMessagesAdmin();
+}
+
+async function chargerComptes() {
+  try {
+    const snap = await getDocs(query(collection(db, "utilisateurs"), orderBy("creeLe", "desc")));
+    TOUS_LES_COMPTES = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    console.error("Erreur lors du chargement des comptes :", e);
+    TOUS_LES_COMPTES = [];
+    afficherToast("Impossible de charger les comptes. Vérifie les règles Firestore.", "erreur");
+  }
+}
+
+async function chargerMessagesAdmin() {
+  try {
+    const snap = await getDocs(query(collection(db, "messages"), orderBy("creeLe", "desc"), limit(200)));
+    TOUS_LES_MESSAGES_ADMIN = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    TOUS_LES_MESSAGES_ADMIN = [];
+  }
+}
+
+function calculerStatsAdmin() {
+  const actifs = TOUS_LES_COMPTES.filter((c) => c.statut !== "désactivé");
+  document.getElementById("stat-comptes-actifs").textContent = actifs.length;
+  document.getElementById("stat-eleves").textContent = TOUS_LES_COMPTES.filter((c) => c.role === "eleve").length;
+  document.getElementById("stat-professeurs").textContent = TOUS_LES_COMPTES.filter((c) => c.role === "professeur").length;
+  document.getElementById("stat-messages").textContent = TOUS_LES_MESSAGES_ADMIN.filter((m) => m.statut === "envoyé").length;
+}
+
+function libelleRole(role) { return { admin: "Admin", professeur: "Professeur", eleve: "Élève" }[role] || role; }
+
+function afficherComptesRecents() {
+  const conteneur = document.getElementById("liste-comptes-recents");
+  const recents = TOUS_LES_COMPTES.slice(0, 5);
+  if (recents.length === 0) {
+    conteneur.innerHTML = `<p style="color:var(--gris-texte);font-size:0.9rem;">Aucun compte créé pour l'instant.</p>`;
+    return;
+  }
+  conteneur.innerHTML = recents.map((c) => `
+    <div class="ligne-compte-recent">
+      <div class="avatar-table">${initiales(c.nom)}</div>
+      <div style="flex:1;"><strong style="font-size:0.9rem;">${echapperHTML(c.nom)}</strong><div class="identifiant-mono">${echapperHTML(c.email)}</div></div>
+      <span class="badge badge-${c.role}">${libelleRole(c.role)}</span>
+    </div>`).join("");
+}
+
+function afficherTableComptes() {
+  const texteRecherche = document.getElementById("recherche-comptes").value.trim().toLowerCase();
+  const role = document.getElementById("filtre-role").value;
+  const statut = document.getElementById("filtre-statut").value;
+
+  let resultats = TOUS_LES_COMPTES.filter((c) => {
+    const correspondTexte = !texteRecherche || c.nom?.toLowerCase().includes(texteRecherche) || c.email?.toLowerCase().includes(texteRecherche) || c.classeOuFonction?.toLowerCase().includes(texteRecherche);
+    const correspondRole = !role || c.role === role;
+    const correspondStatut = !statut || (c.statut || "actif") === statut;
+    return correspondTexte && correspondRole && correspondStatut;
+  });
+
+  const corps = document.getElementById("corps-table-comptes");
+  const etatVide = document.getElementById("etat-vide-comptes");
+  if (resultats.length === 0) { corps.innerHTML = ""; etatVide.hidden = false; return; }
+  etatVide.hidden = true;
+
+  corps.innerHTML = resultats.map((c) => `
+    <tr>
+      <td><div class="cellule-compte"><div class="avatar-table">${initiales(c.nom)}</div><strong>${echapperHTML(c.nom)}</strong></div></td>
+      <td><span class="identifiant-mono">${echapperHTML(c.email)}</span></td>
+      <td><span class="badge badge-${c.role}">${libelleRole(c.role)}</span></td>
+      <td class="masquer-mobile">${echapperHTML(c.classeOuFonction || "—")}</td>
+      <td>${(c.statut || "actif") === "désactivé" ? '<span class="badge badge-desactive">Désactivé</span>' : '<span class="badge" style="background:rgba(63,122,79,0.1);color:var(--vert-succes);">Actif</span>'}</td>
+      <td>
+        <div class="actions-ligne">
+          <button class="btn-icone" title="Modifier" data-action="modifier" data-id="${c.id}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="btn-icone" title="${(c.statut || 'actif') === 'désactivé' ? 'Réactiver' : 'Désactiver'}" data-action="basculer-statut" data-id="${c.id}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></button>
+          <button class="btn-icone" title="Supprimer" data-action="supprimer" data-id="${c.id}" style="color:var(--rouge-erreur);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+        </div>
+      </td>
+    </tr>`).join("");
+}
+
+function clicTableComptes(e) {
+  const bouton = e.target.closest("button[data-action]");
+  if (!bouton) return;
+  const compte = TOUS_LES_COMPTES.find((c) => c.id === bouton.dataset.id);
+  if (!compte) return;
+  if (bouton.dataset.action === "modifier") ouvrirModaleCompte(compte);
+  if (bouton.dataset.action === "basculer-statut") basculerStatutCompte(compte);
+  if (bouton.dataset.action === "supprimer") demanderSuppressionCompte(compte);
+}
+
+// ---------- Modale compte ----------
+function genererMotDePasse() {
+  const adjectifs = ["rapide", "solide", "calme", "vif", "clair", "fort"];
+  const noms = ["arbre", "fleuve", "stylo", "table", "livre", "craie"];
+  const a = adjectifs[Math.floor(Math.random() * adjectifs.length)];
+  const n = noms[Math.floor(Math.random() * noms.length)];
+  const chiffre = Math.floor(10 + Math.random() * 89);
+  return `${n}${a}${chiffre}`;
+}
+
+function ouvrirModaleCompte(compte) {
+  const form = document.getElementById("formulaire-compte");
+  form.reset();
+  masquerErreurCompte();
+  const elUidEdition = document.getElementById("compte-uid-edition");
+  const elIdentifiantCompte = document.getElementById("compte-identifiant");
+  const elChampMdpCreation = document.getElementById("champ-mdp-creation");
+  const elMdpCompte = document.getElementById("compte-mdp");
+
+  if (compte) {
+    document.getElementById("titre-modale-compte").textContent = "Modifier le compte";
+    document.getElementById("bouton-enregistrer-compte").textContent = "Enregistrer les modifications";
+    elUidEdition.value = compte.id;
+    document.getElementById("compte-nom").value = compte.nom;
+    elIdentifiantCompte.value = compte.email.split("@")[0];
+    elIdentifiantCompte.disabled = true;
+    document.getElementById("compte-role").value = compte.role;
+    document.getElementById("compte-classe").value = compte.classeOuFonction || "";
+    elChampMdpCreation.style.display = "none";
+  } else {
+    document.getElementById("titre-modale-compte").textContent = "Nouveau compte";
+    document.getElementById("bouton-enregistrer-compte").textContent = "Créer le compte";
+    elUidEdition.value = "";
+    elIdentifiantCompte.disabled = false;
+    elChampMdpCreation.style.display = "flex";
+    elMdpCompte.value = genererMotDePasse();
+  }
+  document.getElementById("fond-modale-compte").classList.remove("masquee");
+}
+function fermerModaleCompte() { document.getElementById("fond-modale-compte").classList.add("masquee"); }
+function afficherErreurCompte(texte) { const el = document.getElementById("message-erreur-compte"); el.textContent = texte; el.hidden = false; }
+function masquerErreurCompte() { document.getElementById("message-erreur-compte").hidden = true; }
+
+async function soumettreFormulaireCompte(e) {
+  e.preventDefault();
+  masquerErreurCompte();
+  const elUidEdition = document.getElementById("compte-uid-edition");
+  const elBoutonEnregistrerCompte = document.getElementById("bouton-enregistrer-compte");
+  const estEdition = !!elUidEdition.value;
+  const nom = document.getElementById("compte-nom").value.trim();
+  const identifiant = document.getElementById("compte-identifiant").value.trim();
+  const role = document.getElementById("compte-role").value;
+  const classeOuFonction = document.getElementById("compte-classe").value.trim();
+
+  if (!nom || !identifiant || !role) { afficherErreurCompte("Merci de remplir tous les champs obligatoires."); return; }
+  elBoutonEnregistrerCompte.disabled = true;
+
+  try {
+    if (estEdition) {
+      await updateDoc(doc(db, "utilisateurs", elUidEdition.value), { nom, role, classeOuFonction });
+      afficherToast("Compte mis à jour.", "succes");
+      fermerModaleCompte();
+      await chargerToutAdmin();
+    } else {
+      const mdp = document.getElementById("compte-mdp").value;
+      if (!mdp || mdp.length < 6) { afficherErreurCompte("Le mot de passe doit contenir au moins 6 caractères."); elBoutonEnregistrerCompte.disabled = false; return; }
+      const email = fabriquerEmail(identifiant);
+      if (TOUS_LES_COMPTES.some((c) => c.email === email)) { afficherErreurCompte("Cet identifiant existe déjà. Choisis-en un autre."); elBoutonEnregistrerCompte.disabled = false; return; }
+
+      const nouvelUtilisateur = await createUserWithEmailAndPassword(authSecondaire, email, mdp);
+      await setDoc(doc(db, "utilisateurs", nouvelUtilisateur.user.uid), {
+        nom, email, role, classeOuFonction, statut: "actif",
+        creeLe: serverTimestamp(), creePar: PROFIL_COURANT.nom,
+      });
+      // On déconnecte uniquement l'instance secondaire : la session de l'admin
+      // (sur l'instance principale "auth") n'a jamais été touchée, donc pas besoin
+      // de se reconnecter ni de recharger la page.
+      await signOut(authSecondaire);
+      afficherToast(`Compte de ${nom} créé avec succès.`, "succes");
+      fermerModaleCompte();
+      await chargerToutAdmin();
+    }
+  } catch (erreur) {
+    afficherErreurCompte(traduireErreurCreationCompte(erreur.code));
+  } finally {
+    elBoutonEnregistrerCompte.disabled = false;
+  }
+}
+
+function traduireErreurCreationCompte(code) {
+  switch (code) {
+    case "auth/email-already-in-use": return "Cet identifiant est déjà utilisé par un autre compte.";
+    case "auth/weak-password": return "Le mot de passe est trop faible (6 caractères minimum).";
+    case "auth/invalid-email": return "L'identifiant saisi génère une adresse invalide.";
+    default: return "Une erreur est survenue lors de la création du compte.";
+  }
+}
+
+async function basculerStatutCompte(compte) {
+  const nouveauStatut = (compte.statut || "actif") === "désactivé" ? "actif" : "désactivé";
+  if (compte.id === UTILISATEUR_COURANT.uid && nouveauStatut === "désactivé") {
+    afficherToast("Tu ne peux pas désactiver ton propre compte.", "erreur");
+    return;
+  }
+  await updateDoc(doc(db, "utilisateurs", compte.id), { statut: nouveauStatut });
+  afficherToast(nouveauStatut === "désactivé" ? "Compte désactivé." : "Compte réactivé.", "succes");
+  await chargerToutAdmin();
+}
+
+let ACTION_CONFIRMEE = null;
+function demanderSuppressionCompte(compte) {
+  if (compte.id === UTILISATEUR_COURANT.uid) { afficherToast("Tu ne peux pas supprimer ton propre compte.", "erreur"); return; }
+  document.getElementById("titre-modale-confirmation").textContent = "Supprimer ce compte ?";
+  document.getElementById("texte-modale-confirmation").textContent =
+    `Le profil de ${compte.nom} (${compte.email}) sera supprimé de la base de données. Cette action est irréversible. ` +
+    `Note : pour des raisons de sécurité Firebase, le compte d'authentification devra être supprimé séparément depuis la console Firebase si nécessaire.`;
+  ACTION_CONFIRMEE = async () => {
+    await deleteDoc(doc(db, "utilisateurs", compte.id));
+    afficherToast("Profil supprimé.", "succes");
+    await chargerToutAdmin();
+  };
+  document.getElementById("fond-modale-confirmation").classList.remove("masquee");
+}
+async function confirmerActionAdmin() {
+  const bouton = document.getElementById("confirmer-modale-confirmation");
+  if (ACTION_CONFIRMEE) { bouton.disabled = true; await ACTION_CONFIRMEE(); bouton.disabled = false; }
+  document.getElementById("fond-modale-confirmation").classList.add("masquee");
+}
+
+// ---------- Supervision des messages (vue admin) ----------
+function afficherTableMessagesAdmin() {
+  const texte = document.getElementById("recherche-messages").value.trim().toLowerCase();
+  let resultats = TOUS_LES_MESSAGES_ADMIN.filter((m) =>
+    !texte || m.objet?.toLowerCase().includes(texte) || m.expediteurNom?.toLowerCase().includes(texte) || m.destinataireNom?.toLowerCase().includes(texte));
+
+  const corps = document.getElementById("corps-table-messages");
+  const etatVide = document.getElementById("etat-vide-messages");
+  if (resultats.length === 0) { corps.innerHTML = ""; etatVide.hidden = false; return; }
+  etatVide.hidden = true;
+
+  corps.innerHTML = resultats.map((m) => `
+    <tr>
+      <td>${echapperHTML(m.expediteurNom || "—")}</td>
+      <td>${echapperHTML(m.destinataireNom || "—")}</td>
+      <td>${echapperHTML(m.objet || "(Sans objet)")}</td>
+      <td class="masquer-mobile">${formaterDate(m.creeLe)}</td>
+      <td><button class="btn-icone" data-action="voir-message" data-id="${m.id}" title="Voir le message"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button></td>
+    </tr>`).join("");
+}
+
+function clicTableMessagesAdmin(e) {
+  const bouton = e.target.closest("button[data-action='voir-message']");
+  if (!bouton) return;
+  const message = TOUS_LES_MESSAGES_ADMIN.find((m) => m.id === bouton.dataset.id);
+  if (message) ouvrirModaleMessageAdmin(message);
+}
+
+function ouvrirModaleMessageAdmin(message) {
+  document.getElementById("contenu-modale-message-admin").innerHTML = `
+    <div style="margin-bottom:1em; display:flex; flex-direction:column; gap:0.4em; font-size:0.88rem; color:var(--gris-texte);">
+      <div><strong style="color:var(--encre);">De :</strong> ${echapperHTML(message.expediteurNom)} (${echapperHTML(message.expediteurEmail || "")})</div>
+      <div><strong style="color:var(--encre);">À :</strong> ${echapperHTML(message.destinataireNom)} (${echapperHTML(message.destinataireEmail || "")})</div>
+      <div><strong style="color:var(--encre);">Date :</strong> ${formaterDate(message.creeLe)}</div>
+    </div>
+    <h3 style="font-family:var(--police-titre); font-size:1.15rem; margin-bottom:0.6em;">${echapperHTML(message.objet || "(Sans objet)")}</h3>
+    <p style="white-space:pre-wrap; line-height:1.6; color:var(--encre); font-size:0.92rem;">${echapperHTML(message.contenu || "")}</p>`;
+  document.getElementById("fond-modale-message-admin").classList.remove("masquee");
+}
+
+// ---------- Paramètres admin : changer son mot de passe ----------
+async function soumettreChangementMdpAdmin(e) {
+  e.preventDefault();
+  const elMessage = document.getElementById("message-mdp");
+  elMessage.hidden = true;
+  const mdpActuel = document.getElementById("mdp-actuel").value;
+  const mdpNouveau = document.getElementById("mdp-nouveau").value;
+  try {
+    const utilisateurActuel = auth.currentUser;
+    const credential = EmailAuthProvider.credential(utilisateurActuel.email, mdpActuel);
+    await reauthenticateWithCredential(utilisateurActuel, credential);
+    await updatePassword(utilisateurActuel, mdpNouveau);
+    afficherToast("Mot de passe mis à jour.", "succes");
+    e.target.reset();
+  } catch (erreur) {
+    elMessage.textContent = "Mot de passe actuel incorrect ou nouveau mot de passe invalide.";
+    elMessage.hidden = false;
+  }
+}
+
+// ============================================================
+// ÉCRAN MESSAGERIE
+// ============================================================
+const TITRES_DOSSIERS = { reception: "Boîte de réception", envoyes: "Envoyés", brouillons: "Brouillons" };
+let MAIL_INITIALISE = false;
+let DESTINATAIRE_SELECTIONNE = null;
+
+async function initialiserMail() {
+  await chargerAnnuaireMail();
+  if (!MAIL_INITIALISE) {
+    attacherEvenementsMail();
+    MAIL_INITIALISE = true;
+  }
+  ouvrirDossierMail("reception");
+}
+
+async function chargerAnnuaireMail() {
+  const snap = await getDocs(collection(db, "utilisateurs"));
+  TOUS_LES_COMPTES = snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((c) => c.id !== UTILISATEUR_COURANT.uid && c.statut !== "désactivé");
+}
+
+function attacherEvenementsMail() {
+  document.querySelectorAll(".nav-item[data-dossier]").forEach((bouton) => {
+    bouton.addEventListener("click", () => ouvrirDossierMail(bouton.dataset.dossier));
+  });
+  document.getElementById("recherche-mail").addEventListener("input", afficherListeMessages);
+  document.getElementById("conteneur-liste-messages").addEventListener("click", clicListeMessages);
+
+  document.getElementById("bouton-nouveau-message").addEventListener("click", () => ouvrirComposition(null));
+  document.getElementById("fermer-composition").addEventListener("click", fermerComposition);
+  document.getElementById("champ-destinataire-saisie").addEventListener("input", gererSaisieDestinataire);
+  document.getElementById("suggestions-destinataire").addEventListener("click", clicSuggestionDestinataire);
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".champ-destinataire")) document.getElementById("suggestions-destinataire").hidden = true;
+  });
+  document.getElementById("bouton-enregistrer-brouillon").addEventListener("click", () => sauvegarderMessage("brouillon"));
+  document.getElementById("formulaire-composition").addEventListener("submit", soumettreComposition);
+}
+
+function ouvrirDossierMail(nom) {
+  DOSSIER_ACTUEL = nom;
+  document.getElementById("titre-dossier").textContent = TITRES_DOSSIERS[nom];
+  document.querySelectorAll(".nav-item[data-dossier]").forEach((b) => b.classList.remove("actif"));
+  document.querySelector(`.nav-item[data-dossier="${nom}"]`).classList.add("actif");
+  reinitialiserLecture();
+  ecouterDossier(nom);
+}
+
+function reinitialiserLecture() {
+  MESSAGE_SELECTIONNE_ID = null;
+  document.getElementById("zone-lecture").innerHTML = `
+    <div class="etat-vide" style="height:100%;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+      <h3>Sélectionne un message</h3>
+      <p>Choisis un message dans la liste pour l'afficher ici.</p>
+    </div>`;
+}
+
+function ecouterDossier(nom) {
+  if (DESINSCRIRE_ECOUTE) DESINSCRIRE_ECOUTE();
+  let q;
+  if (nom === "reception") {
+    q = query(collection(db, "messages"), where("destinataireUid", "==", UTILISATEUR_COURANT.uid), where("statut", "==", "envoyé"), orderBy("creeLe", "desc"));
+  } else if (nom === "envoyes") {
+    q = query(collection(db, "messages"), where("expediteurUid", "==", UTILISATEUR_COURANT.uid), where("statut", "==", "envoyé"), orderBy("creeLe", "desc"));
+  } else {
+    q = query(collection(db, "messages"), where("expediteurUid", "==", UTILISATEUR_COURANT.uid), where("statut", "==", "brouillon"), orderBy("creeLe", "desc"));
+  }
+  DESINSCRIRE_ECOUTE = onSnapshot(q, (snap) => {
+    MESSAGES_DOSSIER_ACTUEL = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    afficherListeMessages();
+    mettreAJourCompteurNonLus();
+  }, (erreur) => {
+    console.error("Erreur d'écoute Firestore :", erreur);
+    document.getElementById("conteneur-liste-messages").innerHTML = `<div class="etat-vide"><h3>Impossible de charger les messages</h3><p>Vérifie ta connexion ou réessaie dans un instant.</p></div>`;
+  });
+}
+
+function mettreAJourCompteurNonLus() {
+  if (DOSSIER_ACTUEL !== "reception") return;
+  const nonLus = MESSAGES_DOSSIER_ACTUEL.filter((m) => !m.lu).length;
+  const elCompteur = document.getElementById("compteur-non-lus");
+  if (nonLus > 0) { elCompteur.textContent = nonLus; elCompteur.hidden = false; } else { elCompteur.hidden = true; }
+}
+
+function libelleVideDossier() { return { reception: "Boîte de réception vide", envoyes: "Aucun message envoyé", brouillons: "Aucun brouillon" }[DOSSIER_ACTUEL]; }
+
+function afficherListeMessages() {
+  const texte = document.getElementById("recherche-mail").value.trim().toLowerCase();
+  const conteneur = document.getElementById("conteneur-liste-messages");
+  let resultats = MESSAGES_DOSSIER_ACTUEL.filter((m) =>
+    !texte || m.objet?.toLowerCase().includes(texte) || m.expediteurNom?.toLowerCase().includes(texte) || m.destinataireNom?.toLowerCase().includes(texte) || m.contenu?.toLowerCase().includes(texte));
+
+  if (resultats.length === 0) {
+    conteneur.innerHTML = `
+      <div class="etat-vide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+        <h3>${libelleVideDossier()}</h3>
+        <p>${DOSSIER_ACTUEL === "reception" ? "Les messages que tu reçois apparaîtront ici." : DOSSIER_ACTUEL === "envoyes" ? "Les messages que tu envoies apparaîtront ici." : "Enregistre un message sans l'envoyer pour le retrouver ici."}</p>
+      </div>`;
+    return;
+  }
+
+  conteneur.innerHTML = resultats.map((m) => {
+    const correspondantNom = DOSSIER_ACTUEL === "reception" ? m.expediteurNom : (m.destinataireNom || "(destinataire supprimé)");
+    const nonLu = DOSSIER_ACTUEL === "reception" && !m.lu;
+    return `
+      <div class="item-message ${nonLu ? "non-lu" : ""} ${m.id === MESSAGE_SELECTIONNE_ID ? "selectionne" : ""}" data-id="${m.id}">
+        <div class="ligne-haut-item"><strong>${nonLu ? '<span class="point-non-lu"></span>' : ""}${echapperHTML(correspondantNom)}</strong><span class="date-item">${formaterDate(m.creeLe)}</span></div>
+        <div class="objet-item">${echapperHTML(m.objet || "(Sans objet)")}</div>
+        <div class="apercu-item">${echapperHTML((m.contenu || "").slice(0, 80))}</div>
+      </div>`;
+  }).join("");
+}
+
+function clicListeMessages(e) {
+  const item = e.target.closest(".item-message");
+  if (!item) return;
+  const message = MESSAGES_DOSSIER_ACTUEL.find((m) => m.id === item.dataset.id);
+  if (!message) return;
+  MESSAGE_SELECTIONNE_ID = message.id;
+  afficherListeMessages();
+  if (DOSSIER_ACTUEL === "brouillons") {
+    ouvrirComposition(message);
+  } else {
+    afficherLectureMessage(message);
+    if (DOSSIER_ACTUEL === "reception" && !message.lu) updateDoc(doc(db, "messages", message.id), { lu: true }).catch((e) => console.error("Erreur marquage lu :", e));
+  }
+}
+
+function afficherLectureMessage(message) {
+  const estReception = DOSSIER_ACTUEL === "reception";
+  const nomAffiche = estReception ? message.expediteurNom : message.destinataireNom;
+  const emailAffiche = estReception ? message.expediteurEmail : message.destinataireEmail;
+
+  document.getElementById("zone-lecture").innerHTML = `
+    <div class="entete-lecture">
+      <h2>${echapperHTML(message.objet || "(Sans objet)")}</h2>
+      <div class="meta-lecture">
+        <div class="avatar-lecture">${initiales(nomAffiche)}</div>
+        <div class="meta-lecture-texte">
+          <div><span class="nom-expediteur">${echapperHTML(nomAffiche || "Compte supprimé")}</span></div>
+          <div class="info-secondaire">${estReception ? "à toi" : "De toi à " + echapperHTML(nomAffiche || "")} · ${echapperHTML(emailAffiche || "")} · ${formaterDate(message.creeLe)}</div>
+        </div>
+      </div>
+    </div>
+    <div class="corps-lecture">${echapperHTML(message.contenu || "")}</div>
+    <div class="actions-lecture">
+      ${estReception ? `<button class="btn btn-principal" id="bouton-repondre"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>Répondre</button>` : ""}
+    </div>`;
+
+  if (estReception) {
+    document.getElementById("bouton-repondre").addEventListener("click", () => {
+      ouvrirComposition(null, {
+        destinataireUid: message.expediteurUid,
+        destinataireNom: message.expediteurNom,
+        destinataireEmail: message.expediteurEmail,
+        objet: message.objet?.startsWith("Re : ") ? message.objet : "Re : " + (message.objet || ""),
+      });
+    });
+  }
+}
+
+// ---------- Composition ----------
+function ouvrirComposition(brouillon = null, prefill = null) {
+  const form = document.getElementById("formulaire-composition");
+  form.reset();
+  masquerErreurComposition();
+  DESTINATAIRE_SELECTIONNE = null;
+  const elDestinataireSaisie = document.getElementById("champ-destinataire-saisie");
+  document.getElementById("destinataire-uid").value = "";
+  elDestinataireSaisie.value = "";
+  elDestinataireSaisie.disabled = false;
+  document.getElementById("destinataire-choisi").hidden = true;
+  document.getElementById("suggestions-destinataire").hidden = true;
+
+  if (brouillon) {
+    document.getElementById("titre-composition").textContent = "Modifier le brouillon";
+    document.getElementById("brouillon-id-edition").value = brouillon.id;
+    document.getElementById("champ-objet").value = brouillon.objet || "";
+    document.getElementById("champ-contenu").value = brouillon.contenu || "";
+    if (brouillon.destinataireUid) {
+      selectionnerDestinataire({ id: brouillon.destinataireUid, nom: brouillon.destinataireNom, email: brouillon.destinataireEmail });
+    }
+  } else {
+    document.getElementById("titre-composition").textContent = "Nouveau message";
+    document.getElementById("brouillon-id-edition").value = "";
+    if (prefill) {
+      document.getElementById("champ-objet").value = prefill.objet || "";
+      selectionnerDestinataire({ id: prefill.destinataireUid, nom: prefill.destinataireNom, email: prefill.destinataireEmail });
+    }
+  }
+  document.getElementById("fond-composition").classList.remove("masquee");
+  setTimeout(() => (prefill ? document.getElementById("champ-contenu") : elDestinataireSaisie).focus(), 50);
+}
+
+function fermerComposition() { document.getElementById("fond-composition").classList.add("masquee"); }
+
+function gererSaisieDestinataire() {
+  const elDestinataireSaisie = document.getElementById("champ-destinataire-saisie");
+  const elSuggestions = document.getElementById("suggestions-destinataire");
+  const texte = elDestinataireSaisie.value.trim().toLowerCase();
+  if (!texte) { elSuggestions.hidden = true; return; }
+  const resultats = TOUS_LES_COMPTES.filter((c) =>
+    c.nom?.toLowerCase().includes(texte) || c.email?.toLowerCase().includes(texte) || c.classeOuFonction?.toLowerCase().includes(texte)).slice(0, 8);
+
+  if (resultats.length === 0) {
+    elSuggestions.innerHTML = `<div class="suggestions-vide">Aucun compte ne correspond.</div>`;
+  } else {
+    elSuggestions.innerHTML = resultats.map((c) => `
+      <div class="suggestion-item" data-id="${c.id}">
+        <div class="avatar-table">${initiales(c.nom)}</div>
+        <div class="suggestion-item-texte"><strong>${echapperHTML(c.nom)}</strong><span>${echapperHTML(c.classeOuFonction || libelleRoleMail(c.role))} · ${echapperHTML(c.email)}</span></div>
+      </div>`).join("");
+  }
+  elSuggestions.hidden = false;
+}
+
+function clicSuggestionDestinataire(e) {
+  const item = e.target.closest(".suggestion-item");
+  if (!item) return;
+  const compte = TOUS_LES_COMPTES.find((c) => c.id === item.dataset.id);
+  if (compte) selectionnerDestinataire(compte);
+}
+
+function selectionnerDestinataire(compte) {
+  DESTINATAIRE_SELECTIONNE = compte;
+  const elDestinataireSaisie = document.getElementById("champ-destinataire-saisie");
+  document.getElementById("destinataire-uid").value = compte.id;
+  elDestinataireSaisie.value = "";
+  elDestinataireSaisie.disabled = true;
+  document.getElementById("suggestions-destinataire").hidden = true;
+  const elDestinataireChoisi = document.getElementById("destinataire-choisi");
+  elDestinataireChoisi.hidden = false;
+  elDestinataireChoisi.innerHTML = `
+    <div class="avatar-table">${initiales(compte.nom)}</div>
+    <span>${echapperHTML(compte.nom)}</span>
+    <button type="button" id="retirer-destinataire" aria-label="Retirer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+  document.getElementById("retirer-destinataire").addEventListener("click", () => {
+    DESTINATAIRE_SELECTIONNE = null;
+    document.getElementById("destinataire-uid").value = "";
+    elDestinataireChoisi.hidden = true;
+    elDestinataireSaisie.disabled = false;
+    elDestinataireSaisie.value = "";
+    elDestinataireSaisie.focus();
+  });
+}
+
+function libelleRoleMail(role) { return { admin: "Administration", professeur: "Professeur / Personnel", eleve: "Élève" }[role] || role; }
+
+async function soumettreComposition(e) {
+  e.preventDefault();
+  if (!DESTINATAIRE_SELECTIONNE) { afficherErreurComposition("Choisis un destinataire dans la liste suggérée."); return; }
+  if (!document.getElementById("champ-contenu").value.trim()) { afficherErreurComposition("Le message ne peut pas être vide."); return; }
+  await sauvegarderMessage("envoyé");
+}
+
+async function sauvegarderMessage(statutCible) {
+  masquerErreurComposition();
+  const idBrouillon = document.getElementById("brouillon-id-edition").value;
+  const objet = document.getElementById("champ-objet").value.trim();
+  const contenu = document.getElementById("champ-contenu").value.trim();
+
+  if (statutCible === "brouillon" && !DESTINATAIRE_SELECTIONNE && !objet && !contenu) { fermerComposition(); return; }
+
+  const donnees = {
+    expediteurUid: UTILISATEUR_COURANT.uid,
+    expediteurNom: PROFIL_COURANT.nom,
+    expediteurEmail: PROFIL_COURANT.email,
+    destinataireUid: DESTINATAIRE_SELECTIONNE?.id || null,
+    destinataireNom: DESTINATAIRE_SELECTIONNE?.nom || null,
+    destinataireEmail: DESTINATAIRE_SELECTIONNE?.email || null,
+    objet, contenu, statut: statutCible, lu: false,
+  };
+
+  try {
+    if (idBrouillon) {
+      // Pour un brouillon existant : on ne réécrit pas creeLe.
+      // Si on l'envoie, on ajoute envoyeLe ; si on sauvegarde, on met modifieLe.
+      const champsTemps = statutCible === "envoyé"
+        ? { envoyeLe: serverTimestamp() }
+        : { modifieLe: serverTimestamp() };
+      await updateDoc(doc(db, "messages", idBrouillon), { ...donnees, ...champsTemps });
+    } else {
+      await addDoc(collection(db, "messages"), { ...donnees, creeLe: serverTimestamp() });
+    }
+    afficherToast(statutCible === "envoyé" ? "Message envoyé." : "Brouillon enregistré.", "succes");
+    fermerComposition();
+  } catch (erreur) {
+    console.error(erreur);
+    afficherErreurComposition("Une erreur est survenue. Réessaie.");
+  }
+}
+
+function afficherErreurComposition(texte) { const el = document.getElementById("message-erreur-composition"); el.textContent = texte; el.hidden = false; }
+function masquerErreurComposition() { document.getElementById("message-erreur-composition").hidden = true; }
+
+</script>
+</body>
+</html>
