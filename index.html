@@ -90,6 +90,8 @@ button { font-family: inherit; cursor: pointer; }
 .etat-vide p { font-size: 0.9rem; max-width: 320px; }
 
 @media (max-width: 720px) { .masquer-mobile { display: none !important; } }
+.masquer-desktop { display: none; }
+.ligne-titre-mobile { display: flex; align-items: center; gap: 0.6em; }
 
 /* ============================================================
    ÉCRAN : CONNEXION
@@ -180,7 +182,31 @@ button { font-family: inherit; cursor: pointer; }
 .modale-entete h2 { font-family: var(--police-titre); font-size: 1.25rem; font-weight: 600; }
 .actions-modale { display: flex; justify-content: flex-end; gap: 0.7em; margin-top: 0.4em; }
 @media (max-width: 980px) { .grille-stats { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 760px) { .app-admin { grid-template-columns: 1fr; } .barre-laterale { flex-direction: row; overflow-x: auto; padding: 1em; } .logo-admin, .bas-barre-laterale { display: none; } .nav-admin { flex-direction: row; } .contenu-admin { padding: 1.4em; } .ligne-deux-champs { grid-template-columns: 1fr; } }
+
+@media (max-width: 760px) {
+  .app-admin { grid-template-columns: 1fr; }
+  .barre-laterale { display: none; }
+  .masquer-desktop { display: inline-flex; }
+  .contenu-admin { padding: 1.2em; }
+  .ligne-deux-champs { grid-template-columns: 1fr; }
+  .grille-stats { grid-template-columns: 1fr 1fr; gap: 0.7em; }
+  .carte-stat { padding: 1em; }
+  .carte-stat-valeur { font-size: 1.5rem; }
+  .panneau-entete { flex-direction: column; align-items: stretch; }
+  .recherche-filtre { flex-direction: column; }
+  .champ-recherche, .recherche-filtre select { max-width: none; width: 100%; }
+  .barre-actions { flex-direction: column; align-items: stretch; }
+  .barre-actions .btn { width: 100%; }
+
+  /* Les tables larges deviennent des cartes empilées et lisibles */
+  .table-comptes thead { display: none; }
+  .table-comptes, .table-comptes tbody, .table-comptes tr, .table-comptes td { display: block; width: 100%; }
+  .table-comptes tr { border: 1px solid var(--gris-bordure); border-radius: var(--rayon-petit); margin-bottom: 0.8em; padding: 0.8em; }
+  .table-comptes td { border-bottom: none; padding: 0.35em 0; }
+  .table-comptes td:empty { display: none; }
+  .actions-ligne { justify-content: flex-start; margin-top: 0.4em; }
+  .identifiant-mono { word-break: break-all; }
+}
 
 /* ============================================================
    ÉCRAN : MESSAGERIE
@@ -227,7 +253,37 @@ button { font-family: inherit; cursor: pointer; }
 .destinataire-choisi { display: flex; align-items: center; gap: 0.6em; background: var(--papier); border: 1px solid var(--gris-bordure); border-radius: var(--rayon-petit); padding: 0.5em 0.7em; margin-top: 0.5em; width: fit-content; }
 .destinataire-choisi button { background: none; border: none; color: var(--gris-texte); display: flex; padding: 0.1em; }
 .destinataire-choisi button:hover { color: var(--rouge-erreur); }
-@media (max-width: 980px) { .app-mail { grid-template-columns: 80px 1fr; } .barre-laterale-mail .logo-admin span, .barre-laterale-mail .logo-admin strong, .barre-laterale-mail #bouton-nouveau-message, .app-mail .bas-barre-laterale { display: none; } .lecture-message { display: none; } }
+@media (max-width: 980px) {
+  .app-mail { grid-template-columns: 1fr; height: 100vh; }
+  .barre-laterale-mail { display: none; }
+  .masquer-desktop { display: inline-flex; }
+  .liste-messages { border-right: none; }
+
+  /* Sur mobile : soit la liste, soit la lecture est visible, jamais les deux */
+  .app-mail.affiche-lecture .liste-messages { display: none; }
+  .app-mail:not(.affiche-lecture) .lecture-message { display: none; }
+  #bouton-retour-liste-mobile { display: none; }
+  .app-mail.affiche-lecture #bouton-retour-liste-mobile { display: inline-flex; }
+}
+
+/* ---------- Panneau menu mobile (barre latérale en tiroir) ---------- */
+.panneau-menu-mobile {
+  background: var(--encre);
+  color: var(--blanc);
+  width: 270px;
+  height: 100%;
+  padding: 1.6em 1.2em;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--ombre-forte);
+}
+#fond-menu-mobile { justify-content: flex-start; padding: 0; }
+#fond-menu-mobile .nav-item { color: rgba(255,253,248,0.75); }
+#fond-menu-mobile .nav-item:hover { background: rgba(255,253,248,0.07); color: var(--blanc); }
+#fond-menu-mobile .nav-item.actif { background: var(--bordeaux); color: var(--blanc); }
+@media (min-width: 761px) {
+  #fond-menu-mobile { display: none !important; }
+}
 </style>
 </head>
 <body>
@@ -292,14 +348,9 @@ button { font-family: inherit; cursor: pointer; }
   <div class="app-admin">
     <aside class="barre-laterale">
       <div class="logo-admin">
-        <svg width="34" height="34" viewBox="0 0 100 75" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <rect x="0" y="0" width="100" height="75" rx="7" fill="#7a2e2e"/>
-          <polygon points="0,0 100,0 50,44" fill="#fffdf8"/>
-          <polygon points="0,75 38,42 50,52 62,42 100,75" fill="#5c2020"/>
-          <polygon points="0,0 0,75 38,42" fill="#6a2828"/>
-          <polygon points="100,0 100,75 62,42" fill="#6a2828"/>
-          <polygon points="50,34 72,18 28,18" fill="#d4a843"/>
-        </svg>
+        <div class="cachet" style="width:34px;height:34px;color:var(--craie);">
+          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="56" stroke="currentColor" stroke-width="3" stroke-dasharray="2 5"/><circle cx="60" cy="60" r="46" stroke="currentColor" stroke-width="2"/></svg>
+        </div>
         <div><strong>Administration</strong><span>CLG Victor Duruy</span></div>
       </div>
       <nav class="nav-admin">
@@ -334,9 +385,14 @@ button { font-family: inherit; cursor: pointer; }
 
     <main class="contenu-admin">
       <header class="entete-admin">
-        <h1 id="titre-vue">Tableau de bord</h1>
+        <div class="ligne-titre-mobile">
+          <button class="btn-icone masquer-desktop" id="bouton-menu-mobile-admin" aria-label="Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <h1 id="titre-vue">Tableau de bord</h1>
+        </div>
         <div class="profil-coin">
-          <span id="nom-admin-connecte">—</span>
+          <span id="nom-admin-connecte" class="masquer-mobile">—</span>
           <div class="avatar-mini" id="avatar-admin">—</div>
         </div>
       </header>
@@ -380,6 +436,10 @@ button { font-family: inherit; cursor: pointer; }
               <option value="désactivé">Désactivés</option>
             </select>
           </div>
+          <button class="btn btn-secondaire" id="bouton-export-csv" title="Exporter la liste des comptes">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Exporter (CSV)
+          </button>
           <button class="btn btn-principal" id="bouton-nouveau-compte">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Nouveau compte
@@ -450,14 +510,9 @@ button { font-family: inherit; cursor: pointer; }
   <div class="app-mail">
     <aside class="barre-laterale-mail">
       <div class="logo-admin">
-        <svg width="34" height="34" viewBox="0 0 100 75" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <rect x="0" y="0" width="100" height="75" rx="7" fill="#7a2e2e"/>
-          <polygon points="0,0 100,0 50,44" fill="#fffdf8"/>
-          <polygon points="0,75 38,42 50,52 62,42 100,75" fill="#5c2020"/>
-          <polygon points="0,0 0,75 38,42" fill="#6a2828"/>
-          <polygon points="100,0 100,75 62,42" fill="#6a2828"/>
-          <polygon points="50,34 72,18 28,18" fill="#d4a843"/>
-        </svg>
+        <div class="cachet" style="width:34px;height:34px;color:var(--craie);">
+          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="56" stroke="currentColor" stroke-width="3" stroke-dasharray="2 5"/><circle cx="60" cy="60" r="46" stroke="currentColor" stroke-width="2"/></svg>
+        </div>
         <div><strong>Messagerie</strong><span>CLG Victor Duruy</span></div>
       </div>
       <button class="btn btn-craie" id="bouton-nouveau-message" style="margin: 1.2em 0;">
@@ -491,9 +546,14 @@ button { font-family: inherit; cursor: pointer; }
       </div>
     </aside>
 
-    <section class="liste-messages">
+    <section class="liste-messages" id="section-liste-messages">
       <header class="entete-liste">
-        <h1 id="titre-dossier">Boîte de réception</h1>
+        <div class="ligne-titre-mobile">
+          <button class="btn-icone masquer-desktop" id="bouton-menu-mobile-mail" aria-label="Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <h1 id="titre-dossier">Boîte de réception</h1>
+        </div>
         <div class="champ-recherche" style="max-width:none;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text" id="recherche-mail" placeholder="Rechercher..." />
@@ -517,7 +577,15 @@ button { font-family: inherit; cursor: pointer; }
 </div>
 
 <!-- ============================================================
+     MENU MOBILE (barre latérale en panneau coulissant sur petit écran)
+     ============================================================ -->
+<div class="fond-modale masquee" id="fond-menu-mobile">
+  <div class="panneau-menu-mobile" id="panneau-menu-mobile"></div>
+</div>
+
+<!-- ============================================================
      MODALES (partagées)
+
      ============================================================ -->
 <div class="fond-modale masquee" id="fond-modale-compte">
   <div class="modale">
@@ -574,7 +642,7 @@ button { font-family: inherit; cursor: pointer; }
 <div class="fond-modale masquee" id="fond-modale-message-admin">
   <div class="modale">
     <div class="modale-entete">
-      <h2>Détail du message</h2>
+      <h2 id="titre-modale-message-admin">Détail du message</h2>
       <button class="btn-icone" id="fermer-modale-message-admin"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div id="contenu-modale-message-admin"></div>
@@ -597,7 +665,11 @@ button { font-family: inherit; cursor: pointer; }
         <div id="destinataire-choisi" class="destinataire-choisi" hidden></div>
       </div>
       <div class="champ"><label for="champ-objet">Objet</label><input type="text" id="champ-objet" placeholder="Objet du message" /></div>
-      <div class="champ" style="flex:1;"><label for="champ-contenu">Message</label><textarea id="champ-contenu" placeholder="Écris ton message ici..." style="min-height:240px; flex:1;"></textarea></div>
+      <div class="champ" style="flex:1;">
+        <label for="champ-contenu">Message</label>
+        <textarea id="champ-contenu" placeholder="Écris ton message ici..." style="min-height:240px; flex:1;"></textarea>
+        <span id="compteur-caracteres" class="texte-aide" style="text-align:right;">0 caractère</span>
+      </div>
       <div id="message-erreur-composition" class="message-erreur" hidden></div>
       <div class="actions-modale" style="justify-content:space-between;">
         <button type="button" class="btn btn-secondaire" id="bouton-enregistrer-brouillon">Enregistrer le brouillon</button>
@@ -812,7 +884,7 @@ function traduireErreurConnexion(code) {
   }
 }
 
-async function deconnecterUtilisateur() {
+function deconnecterUtilisateur() {
   // On coupe l'écoute Firestore en cours (boîte de réception/envoyés/brouillons)
   // avant de se déconnecter, sinon elle continue de tourner sans les droits
   // nécessaires et génère des erreurs de permission en boucle dans la console.
@@ -820,15 +892,9 @@ async function deconnecterUtilisateur() {
     DESINSCRIRE_ECOUTE();
     DESINSCRIRE_ECOUTE = null;
   }
-  // Réinitialiser les flags d'initialisation pour que les listeners soient
-  // correctement réattachés si un autre compte se connecte ensuite.
-  ADMIN_INITIALISE = false;
-  MAIL_INITIALISE = false;
   UTILISATEUR_COURANT = null;
   PROFIL_COURANT = null;
-  TOUS_LES_COMPTES = [];
-  TOUS_LES_MESSAGES_ADMIN = [];
-  await signOut(auth);
+  signOut(auth);
 }
 document.getElementById("bouton-deconnexion-admin").addEventListener("click", deconnecterUtilisateur);
 document.getElementById("bouton-deconnexion-mail").addEventListener("click", deconnecterUtilisateur);
@@ -839,8 +905,6 @@ document.getElementById("bouton-aller-mail-depuis-admin").addEventListener("clic
 document.getElementById("bouton-aller-admin-depuis-mail").addEventListener("click", async () => {
   // On coupe l'écoute Firestore de la messagerie tant qu'on est sur l'écran admin.
   if (DESINSCRIRE_ECOUTE) { DESINSCRIRE_ECOUTE(); DESINSCRIRE_ECOUTE = null; }
-  // Forcer le rechargement des données admin (liste des comptes potentiellement mise à jour)
-  ADMIN_INITIALISE = false;
   await initialiserAdmin();
   afficherEcran("admin");
 });
@@ -882,6 +946,7 @@ function attacherEvenementsAdmin() {
   document.getElementById("corps-table-comptes").addEventListener("click", clicTableComptes);
 
   document.getElementById("bouton-nouveau-compte").addEventListener("click", () => ouvrirModaleCompte(null));
+  document.getElementById("bouton-export-csv").addEventListener("click", exporterComptesCsv);
   document.getElementById("fermer-modale-compte").addEventListener("click", fermerModaleCompte);
   document.getElementById("annuler-modale-compte").addEventListener("click", fermerModaleCompte);
   document.getElementById("bouton-generer-mdp").addEventListener("click", () => { document.getElementById("compte-mdp").value = genererMotDePasse(); });
@@ -899,6 +964,35 @@ function attacherEvenementsAdmin() {
   });
 
   document.getElementById("formulaire-mdp-admin").addEventListener("submit", soumettreChangementMdpAdmin);
+
+  // Mobile : ouverture du tiroir de menu (vues + déconnexion)
+  document.getElementById("bouton-menu-mobile-admin").addEventListener("click", () => ouvrirMenuMobileAdmin());
+}
+
+function ouvrirMenuMobileAdmin() {
+  const panneau = document.getElementById("panneau-menu-mobile");
+  const vueActive = document.querySelector("#ecran-admin .vue:not(.masquee)").id.replace("vue-", "");
+  panneau.innerHTML = `
+    <button class="nav-item ${vueActive === "tableau-de-bord" ? "actif" : ""}" data-vue-mobile="tableau-de-bord">Tableau de bord</button>
+    <button class="nav-item ${vueActive === "comptes" ? "actif" : ""}" data-vue-mobile="comptes">Comptes</button>
+    <button class="nav-item ${vueActive === "messages" ? "actif" : ""}" data-vue-mobile="messages">Messages</button>
+    <button class="nav-item ${vueActive === "parametres" ? "actif" : ""}" data-vue-mobile="parametres">Paramètres</button>
+    <div style="flex:1;"></div>
+    <button class="nav-item" id="mobile-aller-mail">Aller à ma messagerie</button>
+    <button class="nav-item" id="mobile-deconnexion-admin">Se déconnecter</button>`;
+
+  panneau.querySelectorAll("[data-vue-mobile]").forEach((b) => b.addEventListener("click", () => {
+    allerVersVueAdmin(b.dataset.vueMobile);
+    fermerMenuMobile();
+  }));
+  panneau.querySelector("#mobile-aller-mail").addEventListener("click", async () => {
+    fermerMenuMobile();
+    await initialiserMail();
+    afficherEcran("mail");
+  });
+  panneau.querySelector("#mobile-deconnexion-admin").addEventListener("click", () => { fermerMenuMobile(); deconnecterUtilisateur(); });
+
+  document.getElementById("fond-menu-mobile").classList.remove("masquee");
 }
 
 function allerVersVueAdmin(nomVue) {
@@ -919,14 +1013,8 @@ async function chargerToutAdmin() {
 }
 
 async function chargerComptes() {
-  try {
-    const snap = await getDocs(query(collection(db, "utilisateurs"), orderBy("creeLe", "desc")));
-    TOUS_LES_COMPTES = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-  } catch (e) {
-    console.error("Erreur lors du chargement des comptes :", e);
-    TOUS_LES_COMPTES = [];
-    afficherToast("Impossible de charger les comptes. Vérifie les règles Firestore.", "erreur");
-  }
+  const snap = await getDocs(query(collection(db, "utilisateurs"), orderBy("creeLe", "desc")));
+  TOUS_LES_COMPTES = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
 async function chargerMessagesAdmin() {
@@ -947,6 +1035,28 @@ function calculerStatsAdmin() {
 }
 
 function libelleRole(role) { return { admin: "Admin", professeur: "Professeur", eleve: "Élève" }[role] || role; }
+
+function exporterComptesCsv() {
+  if (TOUS_LES_COMPTES.length === 0) { afficherToast("Aucun compte à exporter.", "erreur"); return; }
+  const entetes = ["Nom", "Identifiant (email)", "Rôle", "Classe ou fonction", "Statut"];
+  const lignes = TOUS_LES_COMPTES.map((c) => [
+    c.nom || "", c.email || "", libelleRole(c.role), c.classeOuFonction || "", (c.statut || "actif"),
+  ]);
+  // Échappe les guillemets et entoure chaque cellule de guillemets pour un CSV valide
+  const echapperCellule = (val) => `"${String(val).replace(/"/g, '""')}"`;
+  const contenuCsv = [entetes, ...lignes].map((ligne) => ligne.map(echapperCellule).join(";")).join("\r\n");
+  // BOM UTF-8 pour qu'Excel ouvre correctement les accents français
+  const blob = new Blob(["\uFEFF" + contenuCsv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const lien = document.createElement("a");
+  lien.href = url;
+  lien.download = `comptes-messagerie-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(lien);
+  lien.click();
+  document.body.removeChild(lien);
+  URL.revokeObjectURL(url);
+  afficherToast("Export CSV téléchargé.", "succes");
+}
 
 function afficherComptesRecents() {
   const conteneur = document.getElementById("liste-comptes-recents");
@@ -1062,6 +1172,12 @@ async function soumettreFormulaireCompte(e) {
   const classeOuFonction = document.getElementById("compte-classe").value.trim();
 
   if (!nom || !identifiant || !role) { afficherErreurCompte("Merci de remplir tous les champs obligatoires."); return; }
+
+  if (estEdition && elUidEdition.value === UTILISATEUR_COURANT.uid && role !== "admin") {
+    afficherErreurCompte("Tu ne peux pas retirer ton propre rôle administrateur (tu perdrais l'accès à cet espace).");
+    return;
+  }
+
   elBoutonEnregistrerCompte.disabled = true;
 
   try {
@@ -1085,15 +1201,63 @@ async function soumettreFormulaireCompte(e) {
       // (sur l'instance principale "auth") n'a jamais été touchée, donc pas besoin
       // de se reconnecter ni de recharger la page.
       await signOut(authSecondaire);
-      afficherToast(`Compte de ${nom} créé avec succès.`, "succes");
       fermerModaleCompte();
       await chargerToutAdmin();
+      afficherRecapitulatifCompteCree(nom, email, mdp);
     }
   } catch (erreur) {
-    afficherErreurCompte(traduireErreurCreationCompte(erreur.code));
+    console.error(erreur);
+    const messageErreur = traduireErreurCreationCompte(erreur.code);
+    // La modale de création peut déjà être fermée à ce stade (ex: si l'erreur
+    // survient après la création du compte) : on affiche aussi un toast pour
+    // être certain que l'admin voie l'erreur.
+    if (!document.getElementById("fond-modale-compte").classList.contains("masquee")) {
+      afficherErreurCompte(messageErreur);
+    } else {
+      afficherToast(messageErreur, "erreur");
+    }
   } finally {
     elBoutonEnregistrerCompte.disabled = false;
   }
+}
+
+function afficherRecapitulatifCompteCree(nom, email, mdp) {
+  document.getElementById("titre-modale-message-admin").textContent = "Compte créé avec succès";
+  document.getElementById("contenu-modale-message-admin").innerHTML = `
+    <p style="margin-bottom:1.2em; color:var(--gris-texte); font-size:0.92rem; line-height:1.5;">
+      Le compte de <strong style="color:var(--encre);">${echapperHTML(nom)}</strong> a été créé. Transmets-lui ces identifiants
+      (il/elle pourra changer le mot de passe une fois connecté·e, depuis ses propres paramètres).
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.8em;">
+      <div class="champ">
+        <label>Identifiant</label>
+        <div style="display:flex; gap:0.5em;">
+          <input type="text" readonly value="${echapperHTML(email)}" id="recap-email" style="flex:1;" />
+          <button type="button" class="btn btn-secondaire" data-copier="recap-email">Copier</button>
+        </div>
+      </div>
+      <div class="champ">
+        <label>Mot de passe</label>
+        <div style="display:flex; gap:0.5em;">
+          <input type="text" readonly value="${echapperHTML(mdp)}" id="recap-mdp" style="flex:1;" />
+          <button type="button" class="btn btn-secondaire" data-copier="recap-mdp">Copier</button>
+        </div>
+      </div>
+      <button type="button" class="btn btn-principal" data-copier="recap-tout" style="margin-top:0.4em;">Copier identifiant + mot de passe</button>
+    </div>`;
+
+  document.querySelectorAll("#contenu-modale-message-admin [data-copier]").forEach((bouton) => {
+    bouton.addEventListener("click", () => {
+      const cible = bouton.dataset.copier;
+      const texte = cible === "recap-tout"
+        ? `Identifiant : ${email}\nMot de passe : ${mdp}`
+        : document.getElementById(cible).value;
+      navigator.clipboard.writeText(texte).then(() => afficherToast("Copié dans le presse-papiers.", "succes"))
+        .catch(() => afficherToast("Impossible de copier automatiquement. Sélectionne le texte manuellement.", "erreur"));
+    });
+  });
+
+  document.getElementById("fond-modale-message-admin").classList.remove("masquee");
 }
 
 function traduireErreurCreationCompte(code) {
@@ -1165,6 +1329,7 @@ function clicTableMessagesAdmin(e) {
 }
 
 function ouvrirModaleMessageAdmin(message) {
+  document.getElementById("titre-modale-message-admin").textContent = "Détail du message";
   document.getElementById("contenu-modale-message-admin").innerHTML = `
     <div style="margin-bottom:1em; display:flex; flex-direction:column; gap:0.4em; font-size:0.88rem; color:var(--gris-texte);">
       <div><strong style="color:var(--encre);">De :</strong> ${echapperHTML(message.expediteurNom)} (${echapperHTML(message.expediteurEmail || "")})</div>
@@ -1233,6 +1398,27 @@ function attacherEvenementsMail() {
   });
   document.getElementById("bouton-enregistrer-brouillon").addEventListener("click", () => sauvegarderMessage("brouillon"));
   document.getElementById("formulaire-composition").addEventListener("submit", soumettreComposition);
+
+  // Compteur de caractères en direct
+  document.getElementById("champ-contenu").addEventListener("input", (e) => {
+    const n = e.target.value.length;
+    document.getElementById("compteur-caracteres").textContent = n === 1 ? "1 caractère" : `${n} caractères`;
+  });
+
+  // Raccourci clavier : Ctrl+Entrée (ou Cmd+Entrée sur Mac) pour envoyer directement
+  document.getElementById("formulaire-composition").addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      document.getElementById("formulaire-composition").requestSubmit();
+    }
+  });
+
+  // Mobile : retour de la lecture vers la liste
+  document.getElementById("bouton-retour-liste-mobile").addEventListener("click", () => {
+    document.querySelector(".app-mail").classList.remove("affiche-lecture");
+  });
+  // Mobile : ouverture du tiroir de menu (dossiers + déconnexion)
+  document.getElementById("bouton-menu-mobile-mail").addEventListener("click", () => ouvrirMenuMobileMail());
 }
 
 function ouvrirDossierMail(nom) {
@@ -1240,6 +1426,8 @@ function ouvrirDossierMail(nom) {
   document.getElementById("titre-dossier").textContent = TITRES_DOSSIERS[nom];
   document.querySelectorAll(".nav-item[data-dossier]").forEach((b) => b.classList.remove("actif"));
   document.querySelector(`.nav-item[data-dossier="${nom}"]`).classList.add("actif");
+  document.querySelector(".app-mail").classList.remove("affiche-lecture"); // retour à la liste sur mobile
+  fermerMenuMobile();
   reinitialiserLecture();
   ecouterDossier(nom);
 }
@@ -1247,11 +1435,52 @@ function ouvrirDossierMail(nom) {
 function reinitialiserLecture() {
   MESSAGE_SELECTIONNE_ID = null;
   document.getElementById("zone-lecture").innerHTML = `
+    <button class="btn btn-secondaire masquer-desktop" id="bouton-retour-liste-mobile" style="margin:1em;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Retour à la liste
+    </button>
     <div class="etat-vide" style="height:100%;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
       <h3>Sélectionne un message</h3>
       <p>Choisis un message dans la liste pour l'afficher ici.</p>
     </div>`;
+  document.getElementById("bouton-retour-liste-mobile").addEventListener("click", () => {
+    document.querySelector(".app-mail").classList.remove("affiche-lecture");
+  });
+}
+
+// ---------- Menu mobile (tiroir coulissant qui duplique la barre latérale) ----------
+function ouvrirMenuMobileMail() {
+  const panneau = document.getElementById("panneau-menu-mobile");
+  panneau.innerHTML = `
+    <button class="btn btn-craie" id="mobile-nouveau-message" style="margin-bottom:1.2em;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nouveau message
+    </button>
+    <button class="nav-item ${DOSSIER_ACTUEL === "reception" ? "actif" : ""}" data-dossier-mobile="reception">Boîte de réception</button>
+    <button class="nav-item ${DOSSIER_ACTUEL === "envoyes" ? "actif" : ""}" data-dossier-mobile="envoyes">Envoyés</button>
+    <button class="nav-item ${DOSSIER_ACTUEL === "brouillons" ? "actif" : ""}" data-dossier-mobile="brouillons">Brouillons</button>
+    <div style="flex:1;"></div>
+    ${PROFIL_COURANT.role === "admin" ? '<button class="nav-item" id="mobile-aller-admin">Espace administration</button>' : ""}
+    <button class="nav-item" id="mobile-deconnexion">Se déconnecter</button>`;
+
+  panneau.querySelector("#mobile-nouveau-message").addEventListener("click", () => { fermerMenuMobile(); ouvrirComposition(null); });
+  panneau.querySelectorAll("[data-dossier-mobile]").forEach((b) => b.addEventListener("click", () => ouvrirDossierMail(b.dataset.dossierMobile)));
+  if (PROFIL_COURANT.role === "admin") {
+    panneau.querySelector("#mobile-aller-admin").addEventListener("click", async () => {
+      fermerMenuMobile();
+      if (DESINSCRIRE_ECOUTE) { DESINSCRIRE_ECOUTE(); DESINSCRIRE_ECOUTE = null; }
+      await initialiserAdmin();
+      afficherEcran("admin");
+    });
+  }
+  panneau.querySelector("#mobile-deconnexion").addEventListener("click", () => { fermerMenuMobile(); deconnecterUtilisateur(); });
+
+  document.getElementById("fond-menu-mobile").classList.remove("masquee");
+}
+
+function fermerMenuMobile() {
+  document.getElementById("fond-menu-mobile").classList.add("masquee");
 }
 
 function ecouterDossier(nom) {
@@ -1322,7 +1551,8 @@ function clicListeMessages(e) {
     ouvrirComposition(message);
   } else {
     afficherLectureMessage(message);
-    if (DOSSIER_ACTUEL === "reception" && !message.lu) updateDoc(doc(db, "messages", message.id), { lu: true }).catch((e) => console.error("Erreur marquage lu :", e));
+    document.querySelector(".app-mail").classList.add("affiche-lecture"); // bascule mobile : montre la lecture
+    if (DOSSIER_ACTUEL === "reception" && !message.lu) updateDoc(doc(db, "messages", message.id), { lu: true });
   }
 }
 
@@ -1332,20 +1562,49 @@ function afficherLectureMessage(message) {
   const emailAffiche = estReception ? message.expediteurEmail : message.destinataireEmail;
 
   document.getElementById("zone-lecture").innerHTML = `
+    <button class="btn btn-secondaire masquer-desktop" id="bouton-retour-liste-mobile" style="margin:1em;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Retour à la liste
+    </button>
     <div class="entete-lecture">
       <h2>${echapperHTML(message.objet || "(Sans objet)")}</h2>
       <div class="meta-lecture">
         <div class="avatar-lecture">${initiales(nomAffiche)}</div>
         <div class="meta-lecture-texte">
           <div><span class="nom-expediteur">${echapperHTML(nomAffiche || "Compte supprimé")}</span></div>
-          <div class="info-secondaire">${estReception ? "à toi" : "De toi à " + echapperHTML(nomAffiche || "")} · ${echapperHTML(emailAffiche || "")} · ${formaterDate(message.creeLe)}</div>
+          <div class="info-secondaire">${estReception ? "à toi" : "à " + echapperHTML(nomAffiche || "")} · ${echapperHTML(emailAffiche || "")} · ${formaterDate(message.creeLe)}</div>
         </div>
       </div>
     </div>
     <div class="corps-lecture">${echapperHTML(message.contenu || "")}</div>
     <div class="actions-lecture">
       ${estReception ? `<button class="btn btn-principal" id="bouton-repondre"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>Répondre</button>` : ""}
+      <button class="btn btn-secondaire" id="bouton-transferer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 17 20 12 15 7"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/></svg>
+        Transférer
+      </button>
+      ${estReception ? `<button class="btn btn-secondaire" id="bouton-marquer-non-lu" title="Remettre en non lu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+        Marquer non lu
+      </button>` : ""}
+      <button class="btn btn-danger" id="bouton-supprimer-message" style="margin-left:auto;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Supprimer
+      </button>
     </div>`;
+
+  document.getElementById("bouton-retour-liste-mobile").addEventListener("click", () => {
+    document.querySelector(".app-mail").classList.remove("affiche-lecture");
+  });
+
+  document.getElementById("bouton-transferer").addEventListener("click", () => {
+    ouvrirComposition(null, {
+      objet: message.objet?.startsWith("Tr : ") ? message.objet : "Tr : " + (message.objet || ""),
+      contenuInitial: `\n\n---------- Message transféré ----------\nDe : ${nomAffiche || ""} <${emailAffiche || ""}>\nObjet : ${message.objet || "(Sans objet)"}\n\n${message.contenu || ""}`,
+    });
+  });
+
+  document.getElementById("bouton-supprimer-message").addEventListener("click", () => demanderSuppressionMessage(message));
 
   if (estReception) {
     document.getElementById("bouton-repondre").addEventListener("click", () => {
@@ -1356,7 +1615,25 @@ function afficherLectureMessage(message) {
         objet: message.objet?.startsWith("Re : ") ? message.objet : "Re : " + (message.objet || ""),
       });
     });
+    document.getElementById("bouton-marquer-non-lu").addEventListener("click", async () => {
+      await updateDoc(doc(db, "messages", message.id), { lu: false });
+      reinitialiserLecture();
+      afficherToast("Message marqué comme non lu.", "succes");
+    });
   }
+}
+
+function demanderSuppressionMessage(message) {
+  document.getElementById("titre-modale-confirmation").textContent = "Supprimer ce message ?";
+  document.getElementById("texte-modale-confirmation").textContent =
+    "Ce message sera définitivement supprimé. Cette action est irréversible.";
+  ACTION_CONFIRMEE = async () => {
+    await deleteDoc(doc(db, "messages", message.id));
+    afficherToast("Message supprimé.", "succes");
+    reinitialiserLecture();
+    document.querySelector(".app-mail").classList.remove("affiche-lecture");
+  };
+  document.getElementById("fond-modale-confirmation").classList.remove("masquee");
 }
 
 // ---------- Composition ----------
@@ -1371,6 +1648,7 @@ function ouvrirComposition(brouillon = null, prefill = null) {
   elDestinataireSaisie.disabled = false;
   document.getElementById("destinataire-choisi").hidden = true;
   document.getElementById("suggestions-destinataire").hidden = true;
+  document.getElementById("compteur-caracteres").textContent = "0 caractère";
 
   if (brouillon) {
     document.getElementById("titre-composition").textContent = "Modifier le brouillon";
@@ -1385,14 +1663,34 @@ function ouvrirComposition(brouillon = null, prefill = null) {
     document.getElementById("brouillon-id-edition").value = "";
     if (prefill) {
       document.getElementById("champ-objet").value = prefill.objet || "";
-      selectionnerDestinataire({ id: prefill.destinataireUid, nom: prefill.destinataireNom, email: prefill.destinataireEmail });
+      document.getElementById("champ-contenu").value = prefill.contenuInitial || "";
+      if (prefill.destinataireUid) {
+        selectionnerDestinataire({ id: prefill.destinataireUid, nom: prefill.destinataireNom, email: prefill.destinataireEmail });
+      }
     }
   }
+  // Recalcule le compteur de caractères après avoir rempli le contenu (brouillon ou transfert)
+  const longueurInitiale = document.getElementById("champ-contenu").value.length;
+  document.getElementById("compteur-caracteres").textContent = longueurInitiale === 1 ? "1 caractère" : `${longueurInitiale} caractères`;
   document.getElementById("fond-composition").classList.remove("masquee");
-  setTimeout(() => (prefill ? document.getElementById("champ-contenu") : elDestinataireSaisie).focus(), 50);
+  setTimeout(() => {
+    const champCible = prefill?.destinataireUid ? document.getElementById("champ-contenu") : elDestinataireSaisie;
+    champCible.focus();
+  }, 50);
 }
 
-function fermerComposition() { document.getElementById("fond-composition").classList.add("masquee"); }
+function fermerComposition() {
+  const aDuContenu = document.getElementById("champ-contenu").value.trim() || document.getElementById("champ-objet").value.trim() || DESTINATAIRE_SELECTIONNE;
+  const idBrouillonOuvert = document.getElementById("brouillon-id-edition").value;
+  // On ne demande confirmation que pour un message tout neuf, jamais enregistré :
+  // s'il s'agit d'un brouillon déjà existant qu'on rouvre puis referme sans y
+  // toucher, pas besoin d'avertir.
+  if (aDuContenu && !idBrouillonOuvert) {
+    const confirme = window.confirm("Fermer sans enregistrer ? Pense à cliquer sur \"Enregistrer le brouillon\" si tu veux le garder.");
+    if (!confirme) return;
+  }
+  document.getElementById("fond-composition").classList.add("masquee");
+}
 
 function gererSaisieDestinataire() {
   const elDestinataireSaisie = document.getElementById("champ-destinataire-saisie");
@@ -1473,12 +1771,7 @@ async function sauvegarderMessage(statutCible) {
 
   try {
     if (idBrouillon) {
-      // Pour un brouillon existant : on ne réécrit pas creeLe.
-      // Si on l'envoie, on ajoute envoyeLe ; si on sauvegarde, on met modifieLe.
-      const champsTemps = statutCible === "envoyé"
-        ? { envoyeLe: serverTimestamp() }
-        : { modifieLe: serverTimestamp() };
-      await updateDoc(doc(db, "messages", idBrouillon), { ...donnees, ...champsTemps });
+      await updateDoc(doc(db, "messages", idBrouillon), { ...donnees, creeLe: serverTimestamp() });
     } else {
       await addDoc(collection(db, "messages"), { ...donnees, creeLe: serverTimestamp() });
     }
